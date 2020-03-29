@@ -99,12 +99,37 @@ function querents()
     ];
 }
 
+
+function inspections()
+{
+    $data = getCsv(INSPECTIONS_URL);
+    $lastUpdate = getLastUpdate(INSPECTIONS_PAGE);
+
+    foreach ($data->getRecords() as $record) {
+        $date = new Carbon($record["集計時点_年月日"]);
+        if ($lastUpdate->lt($date)) break;
+
+        $datas[] = [
+            '日付' => $date->format('Y-m-d') . 'T08:00:00.000Z',
+            '小計' => isset($record["検査実施人数"]) ? (int) $record["検査実施人数"] : 0
+        ];
+    }
+
+    return [
+        'date' => $lastUpdate->format('Y-m-d') . 'T08:00:00.000Z',
+        'data' => $datas
+    ];
+}
+
+
 $contacts = contacts();
 $querents = querents();
+$inspections = inspections();
 
 $data = compact([
     'contacts',
-    'querents'
+    'querents',
+    'inspections'
 ]);
 
 file_put_contents(__DIR__ . '/data/data.json', json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK));
