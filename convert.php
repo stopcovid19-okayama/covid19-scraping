@@ -2,7 +2,6 @@
 
 use Carbon\Carbon;
 use League\Csv\Reader;
-use Tightenco\Collect\Contracts\Support\Arrayable;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -73,7 +72,7 @@ function getLastUpdate(array $datas)
     $carbon = Carbon::parse(max($timestamps));
 
     return [
-        'date' => $carbon->format('Y/m/d 8:00')
+        'date' => $carbon->format('Y/m/d 21:00')
     ];
 }
 
@@ -102,7 +101,7 @@ function contacts()
     }
 
     return [
-        'date' => $lastUpdate->format('Y/m/d 8:00'),
+        'date' => $lastUpdate->format('Y/m/d 21:00'),
         'data' => $datas
     ];
 }
@@ -124,7 +123,7 @@ function querents()
     }
 
     return [
-        'date' => $lastUpdate->format('Y/m/d 8:00'),
+        'date' => $lastUpdate->format('Y/m/d 21:00'),
         'data' => $datas
     ];
 }
@@ -146,7 +145,7 @@ function inspections_summary()
     }
 
     return [
-        'date' => $lastUpdate->format('Y/m/d 8:00'),
+        'date' => $lastUpdate->format('Y/m/d 21:00'),
         'data' => $datas
     ];
 }
@@ -173,7 +172,7 @@ function patients()
     }
 
     return [
-        'date' => $lastUpdate->format('Y/m/d 8:00'),
+        'date' => $lastUpdate->format('Y/m/d 21:00'),
         'data' => $datas
     ];
 }
@@ -195,7 +194,7 @@ function patients_summary()
     }
 
     return [
-        'date' => $lastUpdate->format('Y/m/d 8:00'),
+        'date' => $lastUpdate->format('Y/m/d 21:00'),
         'data' => $datas
     ];
 }
