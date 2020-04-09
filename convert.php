@@ -184,6 +184,8 @@ function patients_summary()
     $lastUpdate = scrapingLastUpdate(PATIENTS_SUMMARY_PAGE);
 
     foreach ($data->getRecords() as $record) {
+        if (empty($record["集計時点_年月日"])) break;
+
         $date = Carbon::createFromFormat("m月d日", $record["集計時点_年月日"]);
         if ($lastUpdate->lt($date)) break;
 
@@ -205,6 +207,8 @@ $querents = querents();
 $inspections_summary = inspections_summary();
 $patients = patients();
 $patients_summary = patients_summary();
+
+
 
 $datas = compact([
     'contacts',
