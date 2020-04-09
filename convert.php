@@ -59,7 +59,7 @@ function scrapingLastUpdate(String $url)
 
     $carbon = Carbon::createFromFormat("Y年m月d日", $lastUpdate);
 
-    return $carbon;
+    return $carbon->subDay();
 }
 
 
