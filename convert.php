@@ -72,7 +72,7 @@ function getLastUpdate(array $datas)
     $carbon = Carbon::parse(max($timestamps));
 
     return [
-        'date' => $carbon->format('Y/m/d 21:00')
+        'date' => $carbon->addDay()->format('Y/m/d 21:00')
     ];
 }
 
@@ -101,7 +101,7 @@ function contacts()
     }
 
     return [
-        'date' => $lastUpdate->format('Y/m/d 21:00'),
+        'date' => $lastUpdate->addDay()->format('Y/m/d 21:00'),
         'data' => $datas
     ];
 }
@@ -123,7 +123,7 @@ function querents()
     }
 
     return [
-        'date' => $lastUpdate->format('Y/m/d 21:00'),
+        'date' => $lastUpdate->addDay()->format('Y/m/d 21:00'),
         'data' => $datas
     ];
 }
@@ -145,7 +145,7 @@ function inspections_summary()
     }
 
     return [
-        'date' => $lastUpdate->format('Y/m/d 21:00'),
+        'date' => $lastUpdate->addDay()->format('Y/m/d 21:00'),
         'data' => $datas
     ];
 }
@@ -172,7 +172,7 @@ function patients()
     }
 
     return [
-        'date' => $lastUpdate->format('Y/m/d 21:00'),
+        'date' => $lastUpdate->addDay()->format('Y/m/d 21:00'),
         'data' => $datas
     ];
 }
@@ -196,7 +196,7 @@ function patients_summary()
     }
 
     return [
-        'date' => $lastUpdate->format('Y/m/d 21:00'),
+        'date' => $lastUpdate->addDay()->format('Y/m/d 21:00'),
         'data' => $datas
     ];
 }
@@ -207,7 +207,6 @@ $querents = querents();
 $inspections_summary = inspections_summary();
 $patients = patients();
 $patients_summary = patients_summary();
-
 
 
 $datas = compact([
