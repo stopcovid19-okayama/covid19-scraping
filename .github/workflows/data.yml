@@ -12,6 +12,10 @@ jobs:
         runs-on: ubuntu-18.04
         steps:
             - uses: actions/checkout@v2
+            - name: Update composer
+              uses: kawax/composer-update-action@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - name: Install dependencies
               run: |
                   composer install
