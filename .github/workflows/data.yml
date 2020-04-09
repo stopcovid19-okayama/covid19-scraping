@@ -32,9 +32,6 @@ jobs:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
                   publish_dir: ./data
                   publish_branch: gh-pages
-    notice-slack:
-        runs-on: ubuntu-18.04
-        steps:
             - name: Notification Slack
               uses: 8398a7/action-slack@v2
               with:
