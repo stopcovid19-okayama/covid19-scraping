@@ -8,7 +8,7 @@ on:
 
 jobs:
     update-data:
-        runs-os: ubuntu-latest
+        runs-os: ubuntu-18.04
         steps:
             - uses: actions/checkout@v2
             - name: Install dependencies
