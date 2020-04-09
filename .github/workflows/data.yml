@@ -7,8 +7,9 @@ on:
         - cron: "*/60 * * * *"
 
 jobs:
-    update-data:
-        runs-os: ubuntu-18.04
+    data:
+        name: update-data
+        runs-on: ubuntu-18.04
         steps:
             - uses: actions/checkout@v2
             - name: Install dependencies
