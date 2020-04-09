@@ -80,7 +80,7 @@ function getLastUpdate(array $datas)
 function outputJson(array $datas)
 {
     foreach ($datas as $name => $data) {
-        file_put_contents(__DIR__ . '/data/' . $name . '.json', json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK));
+        file_put_contents(__DIR__ . '/data/' . $name . '.json', json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK) . PHP_EOL);
     }
 }
 
