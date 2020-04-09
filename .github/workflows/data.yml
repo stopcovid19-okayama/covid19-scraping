@@ -1,0 +1,25 @@
+name: Update JSON Files
+
+on:
+    repository_dispatch:
+        types: [update-data]
+    schedule:
+        - cron: "*/60 * * * *"
+
+jobs:
+    update-data:
+        runs-os: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - name: Install dependencies
+              run: |
+                  composer install
+            - name: Run Script
+              run: |
+                  php convert.php
+            - name: Update data
+              uses: peaceiris/actions-gh-pages@v3
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  publish_dir: ./data
+                  publish_branch: gh-pages
