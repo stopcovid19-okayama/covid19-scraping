@@ -112,6 +112,8 @@ function querents()
     $data = getCsv(QUERENTS_URL);
     $lastUpdate = scrapingLastUpdate(QUERENTS_PAGE);
 
+    $lastUpdate->subDay();
+
     foreach ($data->getRecords() as $record) {
         $date = new Carbon($record["集計時点_年月日"]);
         if ($lastUpdate->lt($date)) break;
