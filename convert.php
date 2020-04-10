@@ -59,7 +59,7 @@ function scrapingLastUpdate(String $url)
 
     $carbon = Carbon::createFromFormat("Y年m月d日", $lastUpdate);
 
-    return $carbon;
+    return $carbon->subDay();
 }
 
 
@@ -89,6 +89,8 @@ function contacts()
 {
     $data = getCsv(CONTACTS_URL);
     $lastUpdate = scrapingLastUpdate(CONTACTS_PAGE);
+
+    var_dump($lastUpdate->tzName);
 
     foreach ($data->getRecords() as $record) {
         $date = new Carbon($record["集計時点_年月日"]);

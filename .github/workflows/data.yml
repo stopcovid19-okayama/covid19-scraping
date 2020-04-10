@@ -17,6 +17,7 @@ jobs:
               with:
                   php-version: "7.2"
                   extensions: curl, json
+                  ini-values: date.timezone=Asia/Tokyo
             - name: Update composer
               run: |
                   composer update
