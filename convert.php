@@ -59,7 +59,7 @@ function scrapingLastUpdate(String $url)
 
     $carbon = Carbon::createFromFormat("Y年m月d日", $lastUpdate);
 
-    return $carbon->subDay();
+    return $carbon;
 }
 
 
@@ -72,7 +72,7 @@ function getLastUpdate(array $datas)
     $carbon = Carbon::parse(max($timestamps));
 
     return [
-        'date' => $carbon->addDay()->format('Y/m/d 21:00')
+        'date' => $carbon->format('Y/m/d 21:00')
     ];
 }
 
