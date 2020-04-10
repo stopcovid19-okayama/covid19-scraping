@@ -90,8 +90,6 @@ function contacts()
     $data = getCsv(CONTACTS_URL);
     $lastUpdate = scrapingLastUpdate(CONTACTS_PAGE);
 
-    var_dump($lastUpdate->tzName);
-
     foreach ($data->getRecords() as $record) {
         $date = new Carbon($record["集計時点_年月日"]);
         if ($lastUpdate->lt($date)) break;
