@@ -63,10 +63,10 @@ function scrapingLastUpdate(String $url)
 }
 
 
-function getLastUpdate(array $datas)
+function getLastUpdate(array $data)
 {
-    foreach ($datas as $data) {
-        $timestamps[] = Carbon::parse($data["date"])->timestamp;
+    foreach ($data as $datum) {
+        $timestamps[] = Carbon::parse($datum["date"])->timestamp;
     }
 
     $carbon = Carbon::parse(max($timestamps));
@@ -77,24 +77,24 @@ function getLastUpdate(array $datas)
 }
 
 
-function outputJson(array $datas)
+function outputJson(array $data)
 {
-    foreach ($datas as $name => $data) {
-        file_put_contents(__DIR__ . '/data/' . $name . '.json', json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK) . PHP_EOL);
+    foreach ($data as $name => $datum) {
+        file_put_contents(__DIR__ . '/data/' . $name . '.json', json_encode($datum, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK) . PHP_EOL);
     }
 }
 
 
 function contacts()
 {
-    $data = getCsv(CONTACTS_URL);
+    $contacts = getCsv(CONTACTS_URL);
     $lastUpdate = scrapingLastUpdate(CONTACTS_PAGE);
 
-    foreach ($data->getRecords() as $record) {
+    foreach ($contacts->getRecords() as $record) {
         $date = new Carbon($record["集計時点_年月日"]);
         if ($lastUpdate->lt($date)) break;
 
-        $datas[] = [
+        $data[] = [
             '日付' => $date->format('Y-m-d') . 'T08:00:00.000Z',
             '小計' => isset($record["相談件数_計"]) ? (int) $record["相談件数_計"] : 0
         ];
@@ -102,23 +102,23 @@ function contacts()
 
     return [
         'date' => $lastUpdate->addDay()->format('Y/m/d 21:00'),
-        'data' => $datas
+        'data' => $data
     ];
 }
 
 
 function querents()
 {
-    $data = getCsv(QUERENTS_URL);
+    $querents = getCsv(QUERENTS_URL);
     $lastUpdate = scrapingLastUpdate(QUERENTS_PAGE);
 
     $lastUpdate->subDay();
 
-    foreach ($data->getRecords() as $record) {
+    foreach ($querents->getRecords() as $record) {
         $date = new Carbon($record["集計時点_年月日"]);
         if ($lastUpdate->lt($date)) break;
 
-        $datas[] = [
+        $data[] = [
             '日付' => $date->format('Y-m-d') . 'T08:00:00.000Z',
             '小計' => isset($record["相談件数"]) ? (int) $record["相談件数"] : 0
         ];
@@ -126,21 +126,21 @@ function querents()
 
     return [
         'date' => $lastUpdate->addDay()->format('Y/m/d 21:00'),
-        'data' => $datas
+        'data' => $data
     ];
 }
 
 
 function inspections_summary()
 {
-    $data = getCsv(INSPECTIONS_SUMMARY_URL);
+    $inspections_summary = getCsv(INSPECTIONS_SUMMARY_URL);
     $lastUpdate = scrapingLastUpdate(INSPECTIONS_SUMMARY_PAGE);
 
-    foreach ($data->getRecords() as $record) {
+    foreach ($inspections_summary->getRecords() as $record) {
         $date = new Carbon($record["集計時点_年月日"]);
         if ($lastUpdate->lt($date)) break;
 
-        $datas[] = [
+        $data[] = [
             '日付' => $date->format('Y-m-d') . 'T08:00:00.000Z',
             '小計' => isset($record["検査実施人数"]) ? (int) $record["検査実施人数"] : 0
         ];
@@ -148,22 +148,22 @@ function inspections_summary()
 
     return [
         'date' => $lastUpdate->addDay()->format('Y/m/d 21:00'),
-        'data' => $datas
+        'data' => $data
     ];
 }
 
 
 function patients()
 {
-    $data = getCsv(PATIENTS_URL);
+    $patients = getCsv(PATIENTS_URL);
     $lastUpdate = scrapingLastUpdate(PATIENTS_PAGE);
 
-    foreach ($data->getRecords() as $record) {
+    foreach ($patients->getRecords() as $record) {
         if (empty($record["公表年月日"])) break;
 
         $carbon = Carbon::createFromFormat("m月d日", $record["公表年月日"]);
 
-        $datas[] = [
+        $data[] = [
             'リリース日' => $carbon->format('Y-m-d') . 'T08:00:00.000Z',
             '居住地' => $record["患者＿居住地"],
             '年代' => $record["患者＿年代"],
@@ -175,23 +175,23 @@ function patients()
 
     return [
         'date' => $lastUpdate->addDay()->format('Y/m/d 21:00'),
-        'data' => $datas
+        'data' => $data
     ];
 }
 
 
 function patients_summary()
 {
-    $data = getCsv(PATIENTS_SUMMARY_URL);
+    $patients = getCsv(PATIENTS_SUMMARY_URL);
     $lastUpdate = scrapingLastUpdate(PATIENTS_SUMMARY_PAGE);
 
-    foreach ($data->getRecords() as $record) {
+    foreach ($patients->getRecords() as $record) {
         if (empty($record["集計時点_年月日"])) break;
 
         $date = Carbon::createFromFormat("m月d日", $record["集計時点_年月日"]);
         if ($lastUpdate->lt($date)) break;
 
-        $datas[] = [
+        $data[] = [
             '日付' => $date->format('Y-m-d') . 'T08:00:00.000Z',
             '小計' => isset($record["日別の感染者数"]) ? (int) $record["日別の感染者数"] : 0
         ];
@@ -199,7 +199,63 @@ function patients_summary()
 
     return [
         'date' => $lastUpdate->addDay()->format('Y/m/d 21:00'),
-        'data' => $datas
+        'data' => $data
+    ];
+}
+
+
+function main_summary($data)
+{
+    $inspectionTotal = 0;
+    $patientTotal = 0;
+    $recoveredTotal = 0;
+    $deceasedTotal = 0;
+
+    foreach ($data as $key => $value) {
+        if (!isset($value["data"])) continue;
+        foreach ($value["data"] as $datum) {
+            switch ($key) {
+                case "inspections_summary":
+                    $inspectionTotal += $datum["小計"];
+                    break;
+
+                case "patients_summary":
+                    $patientTotal += $datum["小計"];
+                    break;
+            }
+        }
+    }
+
+    foreach ($data["patients"]["data"] as $datum) {
+        if (!empty($datum["退院"])) {
+            $recoveredTotal += 1;
+        }
+    }
+
+    return [
+        'last_update' => $data["patients"]["date"],
+        'attr' => '検査実施人数',
+        'value' => $inspectionTotal,
+        'children' => [
+            [
+                'attr' => '陽性患者数',
+                'value' => $patientTotal,
+                'children' => [
+                    [
+                        'attr' => '入院中',
+                        'value' => $patientTotal - $recoveredTotal
+                    ],
+                    [
+                        'attr' => '退院',
+                        'value' => $recoveredTotal
+                    ],
+                    [
+                        'attr' => '死亡',
+                        'value' => $deceasedTotal
+                    ]
+                ]
+            ]
+        ]
     ];
 }
 
@@ -210,8 +266,7 @@ $inspections_summary = inspections_summary();
 $patients = patients();
 $patients_summary = patients_summary();
 
-
-$datas = compact([
+$data = compact([
     'contacts',
     'querents',
     'inspections_summary',
@@ -219,6 +274,8 @@ $datas = compact([
     'patients_summary'
 ]);
 
-$datas['last_update'] = getLastUpdate($datas);
+$data['last_update'] = getLastUpdate($data);
 
-outputJson($datas);
+$data['main_summary'] = main_summary($data);
+
+outputJson($data);
