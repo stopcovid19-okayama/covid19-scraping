@@ -129,7 +129,7 @@ function querents()
         "市区町村名",
         "集計時点_年月日",
         "曜日",
-        "相談件数_計"
+        "相談件数"
     ]) as $record) {
         $date = new Carbon($record["集計時点_年月日"]);
         if ($lastUpdate->lt($date)) break;
