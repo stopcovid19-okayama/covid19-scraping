@@ -120,25 +120,25 @@ const opendata = [
       const patientsSummary = require('./data/patients_summary.json').data
 
       return {
-        "last_update": moment().format('YYYY/MM/DD 21:00'),
-        "attr": "検査実施人数",
-        "value": inspectionsSummary.reduce((total, row) => total + row.小計, 0),
-        "children": [
+        last_update: moment().format('YYYY/MM/DD 21:00'),
+        attr: '検査実施人数',
+        value: inspectionsSummary.reduce((total, row) => total + row.小計, 0),
+        children: [
           {
-            "attr": "陽性患者数",
-            "value": patientsSummary.reduce((total, row) => total + row.小計, 0),
-            "children": [
+            attr: '陽性患者数',
+            value: patientsSummary.reduce((total, row) => total + row.小計, 0),
+            children: [
               {
-                "attr": "入院中",
-                "value": 0
+                attr: '入院中',
+                value: 0
               },
               {
-                "attr": "退院",
-                "value": 0
+                attr: '退院',
+                value: 0
               },
               {
-                "attr": "死亡",
-                "value": 0
+                attr: '死亡',
+                value: 0
               }
             ]
           }
