@@ -12,21 +12,15 @@ jobs:
         runs-on: ubuntu-18.04
         steps:
             - uses: actions/checkout@v2
-            - name: Setup php
-              uses: shivammathur/setup-php@v2
+            - name: Setup Node.js
+              uses: actions/setup-node@v1
               with:
-                  php-version: "7.2"
-                  extensions: curl, json
-                  ini-values: date.timezone=Asia/Tokyo
-            - name: Update composer
+                  node-version: '12'
               run: |
-                  composer update
-            - name: Install dependencies
-              run: |
-                  composer install
+                  npm ci
             - name: Run Script
               run: |
-                  php convert.php
+                  npm start
             - name: Update data
               uses: peaceiris/actions-gh-pages@v3
               with:
