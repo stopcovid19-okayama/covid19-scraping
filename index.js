@@ -146,6 +146,14 @@ const opendata = [
       }
     }
   },
+  {
+    name: 'last_update',
+    convert: async (conf) => {
+      return {
+        date: moment().format('YYYY/MM/DD 21:00'),
+      }
+    }
+  },
 ];
 
 (async () => {
