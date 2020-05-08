@@ -1,0 +1,19 @@
+{
+  "name": "covid19-scraping",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "csv-parse": "^4.9.0",
+    "iconv": "^3.0.0",
+    "moment": "^2.25.3",
+    "superagent": "^5.2.2"
+  }
+}
