@@ -147,6 +147,25 @@ const opendata = [
     }
   },
   {
+    name: 'news',
+    url: 'http://fight-okayama.jp/',
+    convert: async (conf) => {
+      const html = await superagent(conf.url).then(({ text }) => text)
+
+      const $ = cheerio.load(html)
+
+      const items = $('body > main > section.section.news > div > ul').children().map((i, el) => ({
+        date: el.children[0].children[0].children[0].nodeValue,
+        url: el.children[0].attribs.href,
+        text: el.children[0].children[1].children[0].nodeValue
+      })).toArray()
+
+      return {
+        newsItems: items
+      }
+    }
+  },
+  {
     name: 'last_update',
     convert: async (conf) => {
       return {
