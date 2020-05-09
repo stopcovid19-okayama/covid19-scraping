@@ -7,6 +7,34 @@ const fs = require("fs")
 
 const dateRE = new RegExp(/[0-9]{4}\/[0-9]{1,2}\/[0-9]{1,2}/) // ガバガバなので注意
 
+function toHalfWidth(str) {
+  return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0))
+}
+
+function toAD(warei) {
+  let [, era, year] = warei.match(/^(明治|大正|昭和|平成|令和)([元\d]+)年?/, match => {
+    if (match === '元') return 1
+  })
+
+  if (era === undefined) throw new Error('Not japanese calendar')
+
+  year = Number(year)
+
+  if (era === '明治') {
+    year += 1867;
+  } else if (era === '大正') {
+    year += 1911;
+  } else if (era === '昭和') {
+    year += 1925;
+  } else if (era === '平成') {
+    year += 1988;
+  } else if (era === '令和') {
+    year += 2018;
+  }
+
+  return year;
+}
+
 function csvToObj(csv) {
   let dateKey
 
@@ -143,6 +171,34 @@ const opendata = [
             ]
           }
         ]
+      }
+    }
+  },
+  {
+    name: 'medical_system',
+    url: 'https://www.pref.okayama.jp/kinkyu/645925.html',
+    convert: async (conf) => {
+
+      const html = await superagent(conf.url).then(({ text }) => text)
+      const $ = cheerio.load(html)
+      const el = $('#main_body > div:nth-child(2) > p:nth-child(68)').children()
+
+      const [, rawDate] = toHalfWidth(el[0].next.nodeValue).match(/^（(.+)現在）$/) // 日付
+
+      const RE = /^\s*?\(\d\).+\s(\d+)[床|台]/
+      const [, bed] = toHalfWidth(el[2].children[0].nodeValue).match(RE) // 確保病床
+      const [, ventilator] = toHalfWidth(el[2].children[2].children[0].nodeValue).match(RE) // 人工呼吸器
+      const [, ecmo] = toHalfWidth(el[2].children[3].nodeValue).match(RE) // ECMO
+
+      console.log(toAD(rawDate))
+
+      return {
+        date: moment(`${toAD(rawDate)}年${rawDate.match(/\d+月\d+日/)[0]}`, 'YYYY年M月D日').format('YYYY/MM/DD 00:00'),
+        items: {
+          bed: Number(bed),
+          ventilator: Number(ventilator),
+          ecmo: Number(ecmo)
+        }
       }
     }
   },
