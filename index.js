@@ -240,6 +240,7 @@ const opendata = [
 
 (async () => {
   for (const conf of opendata) {
+    console.log('processing:', conf.name)
     const data = await conf.convert(conf)
     fs.writeFileSync(`data/${conf.name}.json`, `${JSON.stringify(data, undefined, 4)}\n`);
   }
