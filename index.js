@@ -149,7 +149,11 @@ const opendata = [
       const inspectionsSummary = require('./data/inspections_summary.json').data
       const patientsSummary = require('./data/patients_summary.json').data
 
-      const { body: pdfBuffer } = await superagent.get('https://www.pref.okayama.jp/uploaded/attachment/270873.pdf').responseType('blob')
+      const html = await superagent(conf.url).then(({ text }) => text)
+      const $ = cheerio.load(html)
+      const row = $('#main_body > div:nth-child(2) > p:nth-child(59)').children().filter((i, el) => el.name === 'a')
+
+      const { body: pdfBuffer } = await superagent.get(`https://www.pref.okayama.jp${row[row.length - 1].attribs.href}`).responseType('blob')
 
       const data = await pdfParse(pdfBuffer, {
         max: 1,
