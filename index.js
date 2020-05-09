@@ -224,7 +224,7 @@ const opendata = [
           }))
 
       return {
-        newsItems: items
+        newsItems: items.slice(-3).reverse()
       }
     }
   },
