@@ -190,8 +190,6 @@ const opendata = [
       const [, ventilator] = toHalfWidth(el[2].children[2].children[0].nodeValue).match(RE) // 人工呼吸器
       const [, ecmo] = toHalfWidth(el[2].children[3].nodeValue).match(RE) // ECMO
 
-      console.log(toAD(rawDate))
-
       return {
         date: moment(`${toAD(rawDate)}年${rawDate.match(/\d+月\d+日/)[0]}`, 'YYYY年M月D日').format('YYYY/MM/DD 00:00'),
         items: {
