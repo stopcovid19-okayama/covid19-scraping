@@ -174,6 +174,7 @@ const opendata = [
       }
     }
   },
+  /*
   {
     name: 'medical_system',
     url: 'https://www.pref.okayama.jp/kinkyu/645925.html',
@@ -200,6 +201,7 @@ const opendata = [
       }
     }
   },
+  */
   {
     name: 'news',
     url: 'http://fight-okayama.jp/',
