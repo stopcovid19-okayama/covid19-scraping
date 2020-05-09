@@ -4,6 +4,7 @@ const cheerio = require('cheerio')
 const moment = require('moment')
 const csvParse = require('csv-parse/lib/sync')
 const fs = require("fs")
+const pdfParse = require('pdf-parse');
 
 const dateRE = new RegExp(/[0-9]{4}\/[0-9]{1,2}\/[0-9]{1,2}/) // ガバガバなので注意
 
@@ -143,9 +144,48 @@ const opendata = [
   },
   {
     name: 'main_summary',
+    url: 'https://www.pref.okayama.jp/kinkyu/645925.html',
     convert: async (conf) => {
       const inspectionsSummary = require('./data/inspections_summary.json').data
       const patientsSummary = require('./data/patients_summary.json').data
+
+      const { body: pdfBuffer } = await superagent.get('https://www.pref.okayama.jp/uploaded/attachment/270873.pdf').responseType('blob')
+
+      const data = await pdfParse(pdfBuffer, {
+        max: 1,
+        pagerender: pageData =>
+          pageData
+            .getTextContent()
+            .then(textContent => {
+              const totalArr = []
+              const hospitalArr = []
+              const dischargeTestArr = []
+              const dischargeArr = []
+
+              textContent.items.forEach(item => {
+                // y position
+                if (item.transform[5] !== 321.77) return
+
+                // x position (算出方法分からなかったのでガバガバ注意)
+                if (71 <= item.transform[4] && item.transform[4] < 183) totalArr.push(item)
+                if (183 <= item.transform[4] && item.transform[4] < 309) hospitalArr.push(item)
+                if (309 <= item.transform[4] && item.transform[4] < 435) dischargeTestArr.push(item)
+                if (435 <= item.transform[4] && item.transform[4] < 561) dischargeArr.push(item)
+              })
+
+              function toNumber(items) {
+                return Number(items.filter(item => item.str !== ' ').map(item => toHalfWidth(item.str)).join(''))
+              }
+
+              // なんか文字列にしないといけないっぽいので妥協
+              return JSON.stringify({
+                total: toNumber(totalArr),
+                hospital: toNumber(hospitalArr),
+                dischargeTest: toNumber(dischargeTestArr),
+                discharge: toNumber(dischargeArr)
+              })
+            })
+      }).then(({ text }) => JSON.parse(text))
 
       return {
         last_update: moment().format('YYYY/MM/DD 21:00'),
@@ -158,11 +198,11 @@ const opendata = [
             children: [
               {
                 attr: '入院中',
-                value: 0
+                value: data.hospital
               },
               {
                 attr: '退院',
-                value: 0
+                value: data.discharge
               },
               {
                 attr: '死亡',
