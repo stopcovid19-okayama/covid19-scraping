@@ -190,8 +190,6 @@ const opendata = [
       const [, ventilator] = toHalfWidth(el[2].children[2].children[0].nodeValue).match(RE) // 人工呼吸器
       const [, ecmo] = toHalfWidth(el[2].children[3].nodeValue).match(RE) // ECMO
 
-      console.log(toAD(rawDate))
-
       return {
         date: moment(`${toAD(rawDate)}年${rawDate.match(/\d+月\d+日/)[0]}`, 'YYYY年M月D日').format('YYYY/MM/DD 00:00'),
         items: {
@@ -210,14 +208,23 @@ const opendata = [
 
       const $ = cheerio.load(html)
 
-      const items = $('body > main > section.section.news > div > ul').children().map((i, el) => ({
-        date: el.children[0].children[0].children[0].nodeValue,
-        url: el.children[0].attribs.href,
-        text: el.children[0].children[1].children[0].nodeValue
-      })).toArray()
+      const items =
+        $('body > main > section.section.news > div > ul')
+          .children()
+          .map((i, el) => ({
+            date: moment(el.children[0].children[0].children[0].nodeValue, 'YYYY/MM/DD'),
+            url: el.children[0].attribs.href,
+            text: el.children[0].children[1].children[0].nodeValue
+          }))
+          .toArray()
+          .sort((a, b) => a.date - b.date)
+          .map(row => ({
+            ...row,
+            date: row.date.format('YYYY/MM/DD')
+          }))
 
       return {
-        newsItems: items
+        newsItems: items.slice(-3).reverse()
       }
     }
   },
