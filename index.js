@@ -208,11 +208,20 @@ const opendata = [
 
       const $ = cheerio.load(html)
 
-      const items = $('body > main > section.section.news > div > ul').children().map((i, el) => ({
-        date: el.children[0].children[0].children[0].nodeValue,
-        url: el.children[0].attribs.href,
-        text: el.children[0].children[1].children[0].nodeValue
-      })).toArray()
+      const items =
+        $('body > main > section.section.news > div > ul')
+          .children()
+          .map((i, el) => ({
+            date: moment(el.children[0].children[0].children[0].nodeValue, 'YYYY/MM/DD'),
+            url: el.children[0].attribs.href,
+            text: el.children[0].children[1].children[0].nodeValue
+          }))
+          .toArray()
+          .sort((a, b) => a.date - b.date)
+          .map(row => ({
+            ...row,
+            date: row.date.format('YYYY/MM/DD')
+          }))
 
       return {
         newsItems: items
