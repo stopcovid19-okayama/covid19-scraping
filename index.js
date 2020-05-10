@@ -166,7 +166,7 @@ const opendata = [
                     // y position
                     if (item.transform[5] !== 321.77) return
 
-                    // x position (算出方法分からなかったのでガバガバ注意)
+                    // x position
                     if (71 <= item.transform[4] && item.transform[4] < 184.33) totalArr.push(item)
                     if (184.33 <= item.transform[4] && item.transform[4] < 297.66) hospitalArr.push(item)
                     if (297.66 <= item.transform[4] && item.transform[4] < 410.99) dischargeTestArr.push(item)
