@@ -171,10 +171,10 @@ const opendata = [
                 if (item.transform[5] !== 321.77) return
 
                 // x position (算出方法分からなかったのでガバガバ注意)
-                if (71 <= item.transform[4] && item.transform[4] < 183) totalArr.push(item)
-                if (183 <= item.transform[4] && item.transform[4] < 309) hospitalArr.push(item)
-                if (309 <= item.transform[4] && item.transform[4] < 435) dischargeTestArr.push(item)
-                if (435 <= item.transform[4] && item.transform[4] < 561) dischargeArr.push(item)
+                if (71 <= item.transform[4] && item.transform[4] < 184.33) totalArr.push(item)
+                if (184.33 <= item.transform[4] && item.transform[4] < 297.66) hospitalArr.push(item)
+                if (297.66 <= item.transform[4] && item.transform[4] < 410.99) dischargeTestArr.push(item)
+                if (410.99 <= item.transform[4] && item.transform[4] < 524) dischargeArr.push(item)
               })
 
               function toNumber(items) {
@@ -222,7 +222,6 @@ const opendata = [
     name: 'medical_system',
     url: 'https://www.pref.okayama.jp/kinkyu/645925.html',
     convert: async (conf) => {
-
       const html = await superagent(conf.url).then(({ text }) => text)
       const $ = cheerio.load(html)
       const row = $('#main_body > div:nth-child(2) > p:nth-child(68)').text().split('　　')
