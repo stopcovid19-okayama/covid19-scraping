@@ -1,10 +1,10 @@
-const iconv = require('iconv').Iconv;
-const superagent = require('superagent')
 const cheerio = require('cheerio')
-const moment = require('moment')
 const csvParse = require('csv-parse/lib/sync')
 const fs = require("fs")
+const iconv = require('iconv').Iconv;
+const moment = require('moment')
 const pdfParse = require('pdf-parse');
+const superagent = require('superagent')
 
 const dateRE = new RegExp(/[0-9]{4}\/[0-9]{1,2}\/[0-9]{1,2}/) // ガバガバなので注意
 
@@ -56,9 +56,8 @@ const opendata = [
   {
     name: 'contacts',
     csv: 'http://www.okayama-opendata.jp/ckan/dataset/e6b3c1d2-2f1f-4735-b36e-e45d36d94761/resource/165b2f56-d472-4b71-8c81-f97f898f1923/download',
-    convert: async (conf) => {
-      const csv = await superagent(conf.csv).responseType('blob').then(({ body }) => body)
-
+    transform: async (conf) => {
+      const { body: csv } = await superagent(conf.csv).responseType('blob')
       const csvObj = csvToObj(new iconv('SHIFT_JIS', 'UTF-8').convert(csv).toString())
 
       return {
@@ -73,9 +72,8 @@ const opendata = [
   {
     name: 'querents',
     csv: 'http://www.okayama-opendata.jp/ckan/dataset/e6b3c1d2-2f1f-4735-b36e-e45d36d94761/resource/f38ae73f-73c1-4f34-8174-1b188c77c713/download',
-    convert: async (conf) => {
-      const csv = await superagent(conf.csv).responseType('blob').then(({ body }) => body)
-
+    transform: async (conf) => {
+      const { body: csv } = await superagent(conf.csv).responseType('blob')
       const csvObj = csvToObj(new iconv('SHIFT_JIS', 'UTF-8').convert(csv).toString())
 
       return {
@@ -90,9 +88,8 @@ const opendata = [
   {
     name: 'inspections_summary',
     csv: 'http://www.okayama-opendata.jp/ckan/dataset/e6b3c1d2-2f1f-4735-b36e-e45d36d94761/resource/60ecd874-0f71-4d9f-9a8a-936fad9c99bc/download',
-    convert: async (conf) => {
-      const csv = await superagent(conf.csv).responseType('blob').then(({ body }) => body)
-
+    transform: async (conf) => {
+      const { body: csv } = await superagent(conf.csv).responseType('blob')
       const csvObj = csvToObj(new iconv('SHIFT_JIS', 'UTF-8').convert(csv).toString())
 
       return {
@@ -107,9 +104,8 @@ const opendata = [
   {
     name: 'patients_summary',
     csv: 'http://www.okayama-opendata.jp/ckan/dataset/e6b3c1d2-2f1f-4735-b36e-e45d36d94761/resource/0c728c2e-a366-421d-95df-86b6b5ad15fd/download',
-    convert: async (conf) => {
-      const csv = await superagent(conf.csv).responseType('blob').then(({ body }) => body)
-
+    transform: async (conf) => {
+      const { body: csv } = await superagent(conf.csv).responseType('blob')
       const csvObj = csvToObj(new iconv('SHIFT_JIS', 'UTF-8').convert(csv).toString())
 
       return {
@@ -124,9 +120,8 @@ const opendata = [
   {
     name: 'patients',
     csv: 'http://www.okayama-opendata.jp/ckan/dataset/e6b3c1d2-2f1f-4735-b36e-e45d36d94761/resource/c6503ebc-b2e9-414c-aae7-7374f4801e21/download',
-    convert: async (conf) => {
-      const csv = await superagent(conf.csv).responseType('blob').then(({ body }) => body)
-
+    transform: async (conf) => {
+      const { body: csv } = await superagent(conf.csv).responseType('blob')
       const csvObj = csvToObj(new iconv('SHIFT_JIS', 'UTF-8').convert(csv).toString())
 
       return {
@@ -145,51 +140,53 @@ const opendata = [
   {
     name: 'main_summary',
     url: 'https://www.pref.okayama.jp/kinkyu/645925.html',
-    convert: async (conf) => {
+    transform: async (conf) => {
       const inspectionsSummary = require('./data/inspections_summary.json').data
       const patientsSummary = require('./data/patients_summary.json').data
 
-      const html = await superagent(conf.url).then(({ text }) => text)
+      const { text: html } = await superagent(conf.url)
       const $ = cheerio.load(html)
       const row = $('#main_body > div:nth-child(2) > p:nth-child(59)').children().filter((i, el) => el.name === 'a')
 
       const { body: pdfBuffer } = await superagent.get(`https://www.pref.okayama.jp${row[row.length - 1].attribs.href}`).responseType('blob')
+      const data =
+        await pdfParse(pdfBuffer,
+          {
+            max: 1,
+            pagerender: pageData =>
+              pageData
+                .getTextContent()
+                .then(content => {
+                  const totalArr = []
+                  const hospitalArr = []
+                  const dischargeTestArr = []
+                  const dischargeArr = []
 
-      const data = await pdfParse(pdfBuffer, {
-        max: 1,
-        pagerender: pageData =>
-          pageData
-            .getTextContent()
-            .then(textContent => {
-              const totalArr = []
-              const hospitalArr = []
-              const dischargeTestArr = []
-              const dischargeArr = []
+                  content.items.forEach(item => {
+                    // y position
+                    if (item.transform[5] !== 321.77) return
 
-              textContent.items.forEach(item => {
-                // y position
-                if (item.transform[5] !== 321.77) return
+                    // x position
+                    if (71 <= item.transform[4] && item.transform[4] < 184.33) totalArr.push(item)
+                    if (184.33 <= item.transform[4] && item.transform[4] < 297.66) hospitalArr.push(item)
+                    if (297.66 <= item.transform[4] && item.transform[4] < 410.99) dischargeTestArr.push(item)
+                    if (410.99 <= item.transform[4] && item.transform[4] < 524) dischargeArr.push(item)
+                  })
 
-                // x position (算出方法分からなかったのでガバガバ注意)
-                if (71 <= item.transform[4] && item.transform[4] < 183) totalArr.push(item)
-                if (183 <= item.transform[4] && item.transform[4] < 309) hospitalArr.push(item)
-                if (309 <= item.transform[4] && item.transform[4] < 435) dischargeTestArr.push(item)
-                if (435 <= item.transform[4] && item.transform[4] < 561) dischargeArr.push(item)
-              })
+                  function toNumber(items) {
+                    return Number(items.filter(item => item.str !== ' ').map(item => toHalfWidth(item.str)).join(''))
+                  }
 
-              function toNumber(items) {
-                return Number(items.filter(item => item.str !== ' ').map(item => toHalfWidth(item.str)).join(''))
-              }
-
-              // なんか文字列にしないといけないっぽいので妥協
-              return JSON.stringify({
-                total: toNumber(totalArr),
-                hospital: toNumber(hospitalArr),
-                dischargeTest: toNumber(dischargeTestArr),
-                discharge: toNumber(dischargeArr)
-              })
-            })
-      }).then(({ text }) => JSON.parse(text))
+                  // なんか文字列にしないといけないっぽいので妥協
+                  return JSON.stringify({
+                    total: toNumber(totalArr),
+                    hospital: toNumber(hospitalArr),
+                    dischargeTest: toNumber(dischargeTestArr),
+                    discharge: toNumber(dischargeArr)
+                  })
+                })
+          })
+          .then(({ text }) => JSON.parse(text))
 
       return {
         last_update: moment().format('YYYY/MM/DD 21:00'),
@@ -221,9 +218,8 @@ const opendata = [
   {
     name: 'medical_system',
     url: 'https://www.pref.okayama.jp/kinkyu/645925.html',
-    convert: async (conf) => {
-
-      const html = await superagent(conf.url).then(({ text }) => text)
+    transform: async (conf) => {
+      const { text: html } = await superagent(conf.url)
       const $ = cheerio.load(html)
       const row = $('#main_body > div:nth-child(2) > p:nth-child(68)').text().split('　　')
 
@@ -247,11 +243,9 @@ const opendata = [
   {
     name: 'news',
     url: 'http://fight-okayama.jp/',
-    convert: async (conf) => {
-      const html = await superagent(conf.url).then(({ text }) => text)
-
+    transform: async (conf) => {
+      const { text: html } = await superagent(conf.url)
       const $ = cheerio.load(html)
-
       const items =
         $('body > main > section.section.news > div > ul')
           .children()
@@ -274,7 +268,7 @@ const opendata = [
   },
   {
     name: 'last_update',
-    convert: async (conf) => {
+    transform: async (conf) => {
       return {
         date: moment().format('YYYY/MM/DD 21:00'),
       }
@@ -285,7 +279,7 @@ const opendata = [
 (async () => {
   for (const conf of opendata) {
     console.log('processing:', conf.name)
-    const data = await conf.convert(conf)
+    const data = await conf.transform(conf)
     fs.writeFileSync(`data/${conf.name}.json`, `${JSON.stringify(data, undefined, 4)}\n`);
   }
 })()
