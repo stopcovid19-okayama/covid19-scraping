@@ -142,7 +142,7 @@ const opendata = [
     url: 'https://www.pref.okayama.jp/kinkyu/645925.html',
     transform: async (conf) => {
       const inspectionsSummary = require('./data/inspections_summary.json').data
-      const patientsSummary = require('./data/patients_summary.json').data
+      const patients = require('./data/patients.json').data
 
       const { text: html } = await superagent(conf.url)
       const $ = cheerio.load(html)
@@ -182,7 +182,8 @@ const opendata = [
                     total: toNumber(totalArr),
                     hospital: toNumber(hospitalArr),
                     dischargeTest: toNumber(dischargeTestArr),
-                    discharge: toNumber(dischargeArr)
+                    discharge: toNumber(dischargeArr),
+                    death: 0 // オープンデータが無い
                   })
                 })
           })
@@ -195,8 +196,12 @@ const opendata = [
         children: [
           {
             attr: '陽性患者数',
-            value: patientsSummary.reduce((total, row) => total + row.小計, 0),
+            value: patients.length,
             children: [
+              {
+                attr: '入院調整中',
+                value: patients.length - (data.hospital + data.discharge + data.death)
+              },
               {
                 attr: '入院中',
                 value: data.hospital
@@ -207,7 +212,7 @@ const opendata = [
               },
               {
                 attr: '死亡',
-                value: 0
+                value: data.death
               }
             ]
           }
