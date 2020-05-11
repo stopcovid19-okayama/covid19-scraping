@@ -146,7 +146,9 @@ const opendata = [
 
       const { text: html } = await superagent(conf.url)
       const $ = cheerio.load(html)
-      const row = $('#main_body > div:nth-child(2) > p:nth-child(59)').children().filter((i, el) => el.name === 'a')
+      const p = $('#main_body > div:nth-child(2)').find('p').toArray()
+      const i = p.findIndex(el => $(el).html() === '&#xA0;&#xFF08;&#x9000;&#x9662;&#x60C5;&#x5831;&#xFF09;') + 1 // 「（退院情報）」の一つ下の要素のインデックス
+      const row = p[i].children.filter(el => el.name === 'a')
 
       const { body: pdfBuffer } = await superagent.get(`https://www.pref.okayama.jp${row[row.length - 1].attribs.href}`).responseType('blob')
       const data =
@@ -226,7 +228,7 @@ const opendata = [
     transform: async (conf) => {
       const { text: html } = await superagent(conf.url)
       const $ = cheerio.load(html)
-      const row = $('#main_body > div:nth-child(2) > p:nth-child(68)').text().split('　　')
+      const row = $($('#main_body > div:nth-child(2)').find('p').toArray().find(el => /^５ 医療体制整備状況/.test($(el).text()))).text().split('　　')
 
       const [, rawDate] = toHalfWidth(row[0]).match(/（(.+)現在）$/) // 日付
 
