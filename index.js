@@ -159,19 +159,23 @@ const opendata = [
               pageData
                 .getTextContent()
                 .then(content => {
+                  let dischargeTestingTitle = null
+
                   const totalArr = []
                   const hospitalArr = []
-                  const dischargeTestArr = []
+                  const dischargeTestingArr = []
                   const dischargeArr = []
 
                   content.items.forEach(item => {
+                    if (item.str === 'うち退院検査中') dischargeTestingTitle = item
+
                     // y position
-                    if (item.transform[5] !== 321.77) return
+                    if (dischargeTestingTitle === null || item.transform[5] !== dischargeTestingTitle.transform[5] - 37.56) return
 
                     // x position
                     if (71 <= item.transform[4] && item.transform[4] < 184.33) totalArr.push(item)
                     if (184.33 <= item.transform[4] && item.transform[4] < 297.66) hospitalArr.push(item)
-                    if (297.66 <= item.transform[4] && item.transform[4] < 410.99) dischargeTestArr.push(item)
+                    if (297.66 <= item.transform[4] && item.transform[4] < 410.99) dischargeTestingArr.push(item)
                     if (410.99 <= item.transform[4] && item.transform[4] < 524) dischargeArr.push(item)
                   })
 
@@ -183,7 +187,7 @@ const opendata = [
                   return JSON.stringify({
                     total: toNumber(totalArr),
                     hospital: toNumber(hospitalArr),
-                    dischargeTest: toNumber(dischargeTestArr),
+                    dischargeTesting: toNumber(dischargeTestingArr),
                     discharge: toNumber(dischargeArr),
                     death: 0 // オープンデータが無い
                   })
