@@ -13,11 +13,11 @@
                 },
                 {
                     "attr": "入院中",
-                    "value": 3
+                    "value": 2
                 },
                 {
                     "attr": "退院",
-                    "value": 22
+                    "value": 23
                 },
                 {
                     "attr": "死亡",
