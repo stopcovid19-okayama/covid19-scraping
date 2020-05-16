@@ -232,19 +232,21 @@ const opendata = [
     transform: async (conf) => {
       const { text: html } = await superagent(conf.url)
       const $ = cheerio.load(html)
-      const row = $($('#main_body > div:nth-child(2)').find('p').toArray().find(el => /^５ 医療体制整備状況/.test($(el).text()))).text().split('　　')
+      const row = $($('#main_body > div:nth-child(2)').find('p').toArray().find(el => /^５ 医療体制整備状況/.test($(el).text()))).text().split(/　　\(\d\)/)
 
       const [, rawDate] = toHalfWidth(row[0]).match(/（(.+)現在）$/) // 日付
 
-      const RE = /(\d+)[床|台]/
+      const RE = /(\d+)[床|室|台]/
       const [, bed] = toHalfWidth(row[1]).match(RE) // 確保病床
-      const [, ventilator] = toHalfWidth(row[2]).match(RE) // 人工呼吸器
-      const [, ecmo] = toHalfWidth(row[5]).match(RE) // ECMO
+      const [, stayCareFacility] = toHalfWidth(row[2]).match(RE) // 宿泊療養施設
+      const [, ventilator] = toHalfWidth(row[3]).match(RE) // 人工呼吸器
+      const [, ecmo] = toHalfWidth(row[4]).match(RE) // ECMO
 
       return {
         date: moment(`${toAD(rawDate)}年${rawDate.match(/\d+月\d+日/)[0]}`, 'YYYY年M月D日').format('YYYY/MM/DD 00:00'),
         items: {
           bed: Number(bed),
+          stay_care_facility: Number(stayCareFacility),
           ventilator: Number(ventilator),
           ecmo: Number(ecmo)
         }
