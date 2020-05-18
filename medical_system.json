@@ -1,0 +1,9 @@
+{
+    "date": "2020/05/15 00:00",
+    "items": {
+        "bed": 117,
+        "stay_care_facility": 78,
+        "ventilator": 517,
+        "ecmo": 28
+    }
+}
