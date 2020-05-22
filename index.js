@@ -139,7 +139,7 @@ const opendata = [
   },
   {
     name: 'main_summary',
-    url: 'https://www.pref.okayama.jp/kinkyu/645925.html',
+    url: 'https://www.pref.okayama.jp/page/645925.html',
     transform: async (conf) => {
       const inspectionsSummary = require('./data/inspections_summary.json').data
       const patients = require('./data/patients.json').data
@@ -164,19 +164,21 @@ const opendata = [
                   const totalArr = []
                   const hospitalArr = []
                   const dischargeTestingArr = []
+                  const stayCareFacilityArr = []
                   const dischargeArr = []
 
                   content.items.forEach(item => {
                     if (item.str === 'うち退院検査中') dischargeTestingTitle = item
 
                     // y position
-                    if (dischargeTestingTitle === null || item.transform[5] !== dischargeTestingTitle.transform[5] - 37.56) return
+                    if (dischargeTestingTitle === null || ((item.transform[5] <= dischargeTestingTitle.transform[5] - 36 && item.transform[5] >= dischargeTestingTitle.transform[5] - 39) === false)) return
 
                     // x position
-                    if (71 <= item.transform[4] && item.transform[4] < 184.33) totalArr.push(item)
-                    if (184.33 <= item.transform[4] && item.transform[4] < 297.66) hospitalArr.push(item)
-                    if (297.66 <= item.transform[4] && item.transform[4] < 410.99) dischargeTestingArr.push(item)
-                    if (410.99 <= item.transform[4] && item.transform[4] < 524) dischargeArr.push(item)
+                    if (71 <= item.transform[4] && item.transform[4] < 161.6) totalArr.push(item)
+                    if (161.6 <= item.transform[4] && item.transform[4] < 252.2) hospitalArr.push(item)
+                    if (252.2 <= item.transform[4] && item.transform[4] < 342.8) dischargeTestingArr.push(item)
+                    if (342.8 <= item.transform[4] && item.transform[4] < 433.4) stayCareFacilityArr.push(item)
+                    if (433.4 <= item.transform[4] && item.transform[4] < 524) dischargeArr.push(item)
                   })
 
                   function toNumber(items) {
@@ -188,6 +190,7 @@ const opendata = [
                     total: toNumber(totalArr),
                     hospital: toNumber(hospitalArr),
                     dischargeTesting: toNumber(dischargeTestingArr),
+                    stayCareFacility: toNumber(stayCareFacilityArr),
                     discharge: toNumber(dischargeArr),
                     death: 0 // オープンデータが無い
                   })
@@ -228,7 +231,7 @@ const opendata = [
   },
   {
     name: 'medical_system',
-    url: 'https://www.pref.okayama.jp/kinkyu/645925.html',
+    url: 'https://www.pref.okayama.jp/page/645925.html',
     transform: async (conf) => {
       const { text: html } = await superagent(conf.url)
       const $ = cheerio.load(html)
