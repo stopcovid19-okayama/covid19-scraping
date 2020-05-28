@@ -147,8 +147,8 @@ const opendata = [
       const { text: html } = await superagent(conf.url)
       const $ = cheerio.load(html)
       const p = $('#main_body > div:nth-child(2)').find('p').toArray()
-      const i = p.findIndex(el => $(el).html() === '&#xA0;&#xFF08;&#x9000;&#x9662;&#x60C5;&#x5831;&#xFF09;') + 1 // 「（退院情報）」の一つ下の要素のインデックス
-      const row = p[i].children.filter(el => el.name === 'a')
+      const dischargeInfoElem = p.find(el => /^&#xA0;&#xFF08;&#x9000;&#x9662;&#x60C5;&#x5831;&#xFF09;/.test($(el).html())) // （退院情報）
+      const row = dischargeInfoElem.children.filter(el => el.name === 'a')
 
       const { body: pdfBuffer } = await superagent.get(`https://www.pref.okayama.jp${row[row.length - 1].attribs.href}`).responseType('blob')
       const data =
