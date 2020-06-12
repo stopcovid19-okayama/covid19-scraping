@@ -139,7 +139,7 @@ const opendata = [
   },
   {
     name: 'main_summary',
-    url: 'https://www.pref.okayama.jp/page/645925.html',
+    url: 'https://www.pref.okayama.jp/page/667843.html',
     transform: async (conf) => {
       const inspectionsSummary = require('./data/inspections_summary.json').data
       const patients = require('./data/patients.json').data
