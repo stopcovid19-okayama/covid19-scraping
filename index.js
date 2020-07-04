@@ -139,64 +139,15 @@ const opendata = [
   },
   {
     name: 'main_summary',
-    url: 'https://www.pref.okayama.jp/page/667843.html',
+    url: 'https://www.pref.okayama.jp/page/645925.html',
     transform: async (conf) => {
       const inspectionsSummary = require('./data/inspections_summary.json').data
       const patients = require('./data/patients.json').data
 
       const { text: html } = await superagent(conf.url)
       const $ = cheerio.load(html)
-      const p = $('#main_body > div:nth-child(2)').find('p').toArray()
-      const dischargeInfoElem = p.find(el => /^&#xA0;&#xFF08;&#x9000;&#x9662;&#x60C5;&#x5831;&#xFF09;/.test($(el).html())) // （退院情報）
-      const row = dischargeInfoElem.children.filter(el => el.name === 'a')
-
-      const { body: pdfBuffer } = await superagent.get(`https://www.pref.okayama.jp${row[row.length - 1].attribs.href}`).responseType('blob')
-      const data =
-        await pdfParse(pdfBuffer,
-          {
-            max: 1,
-            pagerender: pageData =>
-              pageData
-                .getTextContent()
-                .then(content => {
-                  let dischargeTestingTitle = null
-
-                  const totalArr = []
-                  const hospitalArr = []
-                  const dischargeTestingArr = []
-                  const stayCareFacilityArr = []
-                  const dischargeArr = []
-
-                  content.items.forEach(item => {
-                    if (item.str === 'うち退院検査中') dischargeTestingTitle = item
-
-                    // y position
-                    if (dischargeTestingTitle === null || ((item.transform[5] <= dischargeTestingTitle.transform[5] - 36 && item.transform[5] >= dischargeTestingTitle.transform[5] - 39) === false)) return
-
-                    // x position
-                    if (71 <= item.transform[4] && item.transform[4] < 161.6) totalArr.push(item)
-                    if (161.6 <= item.transform[4] && item.transform[4] < 252.2) hospitalArr.push(item)
-                    if (252.2 <= item.transform[4] && item.transform[4] < 342.8) dischargeTestingArr.push(item)
-                    if (342.8 <= item.transform[4] && item.transform[4] < 433.4) stayCareFacilityArr.push(item)
-                    if (433.4 <= item.transform[4] && item.transform[4] < 524) dischargeArr.push(item)
-                  })
-
-                  function toNumber(items) {
-                    return Number(items.filter(item => item.str !== ' ').map(item => toHalfWidth(item.str)).join(''))
-                  }
-
-                  // なんか文字列にしないといけないっぽいので妥協
-                  return JSON.stringify({
-                    total: toNumber(totalArr),
-                    hospital: toNumber(hospitalArr),
-                    dischargeTesting: toNumber(dischargeTestingArr),
-                    stayCareFacility: toNumber(stayCareFacilityArr),
-                    discharge: toNumber(dischargeArr),
-                    death: 0 // オープンデータが無い
-                  })
-                })
-          })
-          .then(({ text }) => JSON.parse(text))
+      const tds = $('#main_body > div:nth-child(2) > table > tbody > tr:nth-child(3)').find('td').toArray()
+      const siteData = tds.map(td => Number(toHalfWidth(td.firstChild.nodeValue)))
 
       return {
         last_update: moment().format('YYYY/MM/DD 21:00'),
@@ -209,19 +160,19 @@ const opendata = [
             children: [
               {
                 attr: '入院調整中',
-                value: patients.length - (data.hospital + data.discharge + data.death)
+                value: patients.length - (siteData[1] + siteData[4])
               },
               {
                 attr: '入院中',
-                value: data.hospital
+                value: siteData[1]
               },
               {
                 attr: '退院',
-                value: data.discharge
+                value: siteData[4]
               },
               {
                 attr: '死亡',
-                value: data.death
+                value: 0 // オープンデータが無い
               }
             ]
           }
