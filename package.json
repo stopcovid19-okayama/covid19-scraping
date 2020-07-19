@@ -11,10 +11,10 @@
   "license": "MIT",
   "dependencies": {
     "cheerio": "^1.0.0-rc.3",
-    "csv-parse": "^4.9.0",
+    "csv-parse": "^4.11.1",
     "iconv": "^3.0.0",
-    "moment": "^2.25.3",
+    "moment": "^2.27.0",
     "pdf-parse": "^1.1.1",
-    "superagent": "^5.2.2"
+    "superagent": "^5.3.1"
   }
 }

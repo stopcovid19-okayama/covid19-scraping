@@ -160,7 +160,7 @@ const opendata = [
             children: [
               {
                 attr: '入院調整中',
-                value: patients.length - (siteData[1] + siteData[4])
+                value: patients.length - (siteData[1] + siteData[3])
               },
               {
                 attr: '入院中',
@@ -168,7 +168,7 @@ const opendata = [
               },
               {
                 attr: '退院',
-                value: siteData[4]
+                value: siteData[3]
               },
               {
                 attr: '死亡',
