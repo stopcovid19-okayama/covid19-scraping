@@ -162,8 +162,8 @@ const opendata = [
               diagnosed_date: iS.日付,
               positive_count: pS.小計,
               negative_count: iS.小計 - pS.小計,
-              positive_rate: numRound(pS['７日間平均'] / iS['７日間平均'], 10),
-              weekly_average_diagnosed_count: 7.9
+              positive_rate: numRound(pS['７日間平均'] / iS['７日間平均'] * 100, 10),
+              weekly_average_diagnosed_count: iS['７日間平均']
             }
           })
           .filter(pR => pR !== undefined)
