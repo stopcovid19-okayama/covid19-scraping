@@ -8,6 +8,10 @@ const superagent = require('superagent')
 
 const dateRE = new RegExp(/[0-9]{4}\/[0-9]{1,2}\/[0-9]{1,2}/) // ガバガバなので注意
 
+function numRound(value, base) {
+  return Math.round(value * base) / base;
+}
+
 function toHalfWidth(str) {
   return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0))
 }
@@ -78,9 +82,10 @@ const opendata = [
 
       return {
         date: csvObj[csvObj.length - 1].集計時点_年月日.format('YYYY/MM/DD 21:00'),
-        data: csvObj.map(row => ({
+        data: csvObj.map((row, i) => ({
           日付: `${row.集計時点_年月日.format('YYYY-MM-DD')}T08:00:00.000Z`,
-          小計: Number(row.相談件数)
+          小計: Number(row.相談件数),
+          '７日間平均': 0 <= i - 6 ? numRound(csvObj.slice(i - 6, i + 1).reduce((p, c) => p + Number(c.相談件数), 0) / 7, 10) : null
         }))
       }
     }
@@ -94,9 +99,10 @@ const opendata = [
 
       return {
         date: csvObj[csvObj.length - 1].集計時点_年月日.format('YYYY/MM/DD 21:00'),
-        data: csvObj.map(row => ({
+        data: csvObj.map((row, i) => ({
           日付: `${row.集計時点_年月日.format('YYYY-MM-DD')}T08:00:00.000Z`,
-          小計: Number(row.検査実施人数)
+          小計: Number(row.検査実施人数),
+          '７日間平均': 0 <= i - 6 ? numRound(csvObj.slice(i - 6, i + 1).reduce((p, c) => p + Number(c.検査実施人数), 0) / 7, 10) : null
         }))
       }
     }
@@ -110,9 +116,10 @@ const opendata = [
 
       return {
         date: csvObj[csvObj.length - 1].集計時点_年月日.format('YYYY/MM/DD 21:00'),
-        data: csvObj.map(row => ({
+        data: csvObj.map((row, i) => ({
           日付: `${row.集計時点_年月日.format('YYYY-MM-DD')}T08:00:00.000Z`,
-          小計: Number(row.日別の感染者数)
+          小計: Number(row.日別の感染者数),
+          '７日間平均': 0 <= i - 6 ? numRound(csvObj.slice(i - 6, i + 1).reduce((p, c) => p + Number(c.日別の感染者数), 0) / 7, 10) : null
         }))
       }
     }
@@ -134,6 +141,32 @@ const opendata = [
           退院: "",
           date: row.公表年月日.format('YYYY-MM-DD')
         }))
+      }
+    }
+  },
+  {
+    name: 'positive_rate',
+    transform: async (conf) => {
+      const inspectionsSummary = require('./data/inspections_summary.json').data
+      const patientsSummary = require('./data/patients_summary.json').data
+
+      return {
+        last_update: moment().format('YYYY/MM/DD 21:00'),
+        data: inspectionsSummary
+          .map(iS => {
+            const pS = patientsSummary.find(pS => pS.日付 === iS.日付)
+
+            if (pS === undefined) return
+
+            return {
+              diagnosed_date: iS.日付,
+              positive_count: pS.小計,
+              negative_count: iS.小計 - pS.小計,
+              positive_rate: numRound(pS['７日間平均'] / iS['７日間平均'], 10),
+              weekly_average_diagnosed_count: 7.9
+            }
+          })
+          .filter(pR => pR !== undefined)
       }
     }
   },
