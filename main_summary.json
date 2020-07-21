@@ -5,19 +5,19 @@
     "children": [
         {
             "attr": "陽性患者数",
-            "value": 43,
+            "value": 44,
             "children": [
                 {
                     "attr": "入院調整中",
-                    "value": 2
+                    "value": 0
                 },
                 {
                     "attr": "入院中",
-                    "value": 11
+                    "value": 13
                 },
                 {
                     "attr": "退院",
-                    "value": 30
+                    "value": 31
                 },
                 {
                     "attr": "死亡",
