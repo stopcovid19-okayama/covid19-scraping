@@ -840,6 +840,13 @@
             "negative_count": 24,
             "positive_rate": 4.1,
             "weekly_average_diagnosed_count": 46.1
+        },
+        {
+            "diagnosed_date": "2020-07-20T08:00:00.000Z",
+            "positive_count": 2,
+            "negative_count": 27,
+            "positive_rate": 4.3,
+            "weekly_average_diagnosed_count": 48.9
         }
     ]
 }
