@@ -4,7 +4,7 @@ on:
     repository_dispatch:
         types: [update-data]
     schedule:
-        - cron: "*/60 * * * *"
+        - cron: "0 10,13,15,18,21,23 * * *"
 
 jobs:
     data:

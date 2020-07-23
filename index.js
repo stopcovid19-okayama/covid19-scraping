@@ -65,7 +65,7 @@ const opendata = [
       const csvObj = csvToObj(new iconv('SHIFT_JIS', 'UTF-8').convert(csv).toString())
 
       return {
-        date: csvObj[csvObj.length - 1].集計時点_年月日.format('YYYY/MM/DD 21:00'),
+        date: csvObj[csvObj.length - 1].集計時点_年月日.isBefore(conf.now, 'day') ? csvObj[csvObj.length - 1].集計時点_年月日.format('YYYY/MM/DD 23:10') : csvObj[csvObj.length - 1].集計時点_年月日.set({ hour: conf.now.hour(), minute: conf.now.minute() }).format('YYYY/MM/DD HH:mm'),
         data: csvObj.map(row => ({
           日付: `${row.集計時点_年月日.format('YYYY-MM-DD')}T08:00:00.000Z`,
           小計: Number(row.相談件数_計)
@@ -81,7 +81,7 @@ const opendata = [
       const csvObj = csvToObj(new iconv('SHIFT_JIS', 'UTF-8').convert(csv).toString())
 
       return {
-        date: csvObj[csvObj.length - 1].集計時点_年月日.format('YYYY/MM/DD 21:00'),
+        date: csvObj[csvObj.length - 1].集計時点_年月日.isBefore(conf.now, 'day') ? csvObj[csvObj.length - 1].集計時点_年月日.format('YYYY/MM/DD 23:10') : csvObj[csvObj.length - 1].集計時点_年月日.set({ hour: conf.now.hour(), minute: conf.now.minute() }).format('YYYY/MM/DD HH:mm'),
         data: csvObj.map((row, i) => ({
           日付: `${row.集計時点_年月日.format('YYYY-MM-DD')}T08:00:00.000Z`,
           小計: Number(row.相談件数),
@@ -98,7 +98,7 @@ const opendata = [
       const csvObj = csvToObj(new iconv('SHIFT_JIS', 'UTF-8').convert(csv).toString())
 
       return {
-        date: csvObj[csvObj.length - 1].集計時点_年月日.format('YYYY/MM/DD 21:00'),
+        date: csvObj[csvObj.length - 1].集計時点_年月日.isBefore(conf.now, 'day') ? csvObj[csvObj.length - 1].集計時点_年月日.format('YYYY/MM/DD 23:10') : csvObj[csvObj.length - 1].集計時点_年月日.set({ hour: conf.now.hour(), minute: conf.now.minute() }).format('YYYY/MM/DD HH:mm'),
         data: csvObj.map((row, i) => ({
           日付: `${row.集計時点_年月日.format('YYYY-MM-DD')}T08:00:00.000Z`,
           小計: Number(row.検査実施人数),
@@ -115,7 +115,7 @@ const opendata = [
       const csvObj = csvToObj(new iconv('SHIFT_JIS', 'UTF-8').convert(csv).toString())
 
       return {
-        date: csvObj[csvObj.length - 1].集計時点_年月日.format('YYYY/MM/DD 21:00'),
+        date: csvObj[csvObj.length - 1].集計時点_年月日.isBefore(conf.now, 'day') ? csvObj[csvObj.length - 1].集計時点_年月日.format('YYYY/MM/DD 23:10') : csvObj[csvObj.length - 1].集計時点_年月日.set({ hour: conf.now.hour(), minute: conf.now.minute() }).format('YYYY/MM/DD HH:mm'),
         data: csvObj.map((row, i) => ({
           日付: `${row.集計時点_年月日.format('YYYY-MM-DD')}T08:00:00.000Z`,
           小計: Number(row.日別の感染者数),
@@ -132,7 +132,7 @@ const opendata = [
       const csvObj = csvToObj(new iconv('SHIFT_JIS', 'UTF-8').convert(csv).toString())
 
       return {
-        date: csvObj[csvObj.length - 1].公表年月日.format('YYYY/MM/DD 21:00'),
+        date: csvObj[csvObj.length - 1].公表年月日.isBefore(conf.now, 'day') ? csvObj[csvObj.length - 1].公表年月日.format('YYYY/MM/DD 23:10') : csvObj[csvObj.length - 1].公表年月日.set({ hour: conf.now.hour(), minute: conf.now.minute() }).format('YYYY/MM/DD HH:mm'),
         data: csvObj.map(row => ({
           リリース日: `${row.公表年月日.format('YYYY-MM-DD')}T08:00:00.000Z`,
           居住地: row.患者＿居住地,
@@ -151,7 +151,7 @@ const opendata = [
       const patientsSummary = require('./data/patients_summary.json').data
 
       return {
-        last_update: moment().format('YYYY/MM/DD 21:00'),
+        last_update: conf.now.format('YYYY/MM/DD HH:mm'),
         data: inspectionsSummary
           .map(iS => {
             const pS = patientsSummary.find(pS => pS.日付 === iS.日付)
@@ -183,7 +183,7 @@ const opendata = [
       const siteData = tds.map(td => Number(toHalfWidth(td.firstChild.nodeValue)))
 
       return {
-        last_update: moment().format('YYYY/MM/DD 21:00'),
+        last_update: conf.now.format('YYYY/MM/DD HH:mm'),
         attr: '検査実施人数',
         value: inspectionsSummary.reduce((total, row) => total + row.小計, 0),
         children: [
@@ -270,7 +270,7 @@ const opendata = [
     name: 'last_update',
     transform: async (conf) => {
       return {
-        date: moment().format('YYYY/MM/DD 21:00'),
+        date: conf.now.format('YYYY/MM/DD HH:mm'),
       }
     }
   },
@@ -279,7 +279,12 @@ const opendata = [
 (async () => {
   for (const conf of opendata) {
     console.log('processing:', conf.name)
-    const data = await conf.transform(conf)
+    const data = await conf.transform({ ...conf, now: moment() })
     fs.writeFileSync(`data/${conf.name}.json`, `${JSON.stringify(data, undefined, 4)}\n`);
   }
-})()
+
+  fs.statSync('data/last_update.json')
+})().catch(e => {
+  console.error(e);
+  process.exit(1);
+})
