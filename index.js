@@ -65,7 +65,7 @@ const opendata = [
       const csvObj = csvToObj(new iconv('SHIFT_JIS', 'UTF-8').convert(csv).toString())
 
       return {
-        date: csvObj[csvObj.length - 1].集計時点_年月日.isBefore(conf.now, 'day') ? csvObj[csvObj.length - 1].集計時点_年月日.format('YYYY/MM/DD 23:20') : csvObj[csvObj.length - 1].集計時点_年月日.set({ hour: conf.now.hour(), minute: conf.now.minute() }).format('YYYY/MM/DD HH:mm'),
+        date: conf.now.isAfter(csvObj[csvObj.length - 1].集計時点_年月日.clone().set({ hour: 23, minute: 30 }), 'hour') ? csvObj[csvObj.length - 1].集計時点_年月日.format('YYYY/MM/DD 23:20') : csvObj[csvObj.length - 1].集計時点_年月日.set({ hour: conf.now.hour(), minute: conf.now.minute() }).format('YYYY/MM/DD HH:mm'),
         data: csvObj.map(row => ({
           日付: `${row.集計時点_年月日.format('YYYY-MM-DD')}T08:00:00.000Z`,
           小計: Number(row.相談件数_計)
@@ -81,7 +81,7 @@ const opendata = [
       const csvObj = csvToObj(new iconv('SHIFT_JIS', 'UTF-8').convert(csv).toString())
 
       return {
-        date: csvObj[csvObj.length - 1].集計時点_年月日.isBefore(conf.now, 'day') ? csvObj[csvObj.length - 1].集計時点_年月日.format('YYYY/MM/DD 23:20') : csvObj[csvObj.length - 1].集計時点_年月日.set({ hour: conf.now.hour(), minute: conf.now.minute() }).format('YYYY/MM/DD HH:mm'),
+        date: conf.now.isAfter(csvObj[csvObj.length - 1].集計時点_年月日.clone().set({ hour: 23, minute: 30 }), 'hour') ? csvObj[csvObj.length - 1].集計時点_年月日.format('YYYY/MM/DD 23:20') : csvObj[csvObj.length - 1].集計時点_年月日.set({ hour: conf.now.hour(), minute: conf.now.minute() }).format('YYYY/MM/DD HH:mm'),
         data: csvObj.map((row, i) => ({
           日付: `${row.集計時点_年月日.format('YYYY-MM-DD')}T08:00:00.000Z`,
           小計: Number(row.相談件数),
@@ -98,7 +98,7 @@ const opendata = [
       const csvObj = csvToObj(new iconv('SHIFT_JIS', 'UTF-8').convert(csv).toString())
 
       return {
-        date: csvObj[csvObj.length - 1].集計時点_年月日.isBefore(conf.now, 'day') ? csvObj[csvObj.length - 1].集計時点_年月日.format('YYYY/MM/DD 23:20') : csvObj[csvObj.length - 1].集計時点_年月日.set({ hour: conf.now.hour(), minute: conf.now.minute() }).format('YYYY/MM/DD HH:mm'),
+        date: conf.now.isAfter(csvObj[csvObj.length - 1].集計時点_年月日.clone().set({ hour: 23, minute: 30 }), 'hour') ? csvObj[csvObj.length - 1].集計時点_年月日.format('YYYY/MM/DD 23:20') : csvObj[csvObj.length - 1].集計時点_年月日.set({ hour: conf.now.hour(), minute: conf.now.minute() }).format('YYYY/MM/DD HH:mm'),
         data: csvObj.map((row, i) => ({
           日付: `${row.集計時点_年月日.format('YYYY-MM-DD')}T08:00:00.000Z`,
           小計: Number(row.検査実施人数),
@@ -115,7 +115,7 @@ const opendata = [
       const csvObj = csvToObj(new iconv('SHIFT_JIS', 'UTF-8').convert(csv).toString())
 
       return {
-        date: csvObj[csvObj.length - 1].集計時点_年月日.isBefore(conf.now, 'day') ? csvObj[csvObj.length - 1].集計時点_年月日.format('YYYY/MM/DD 23:20') : csvObj[csvObj.length - 1].集計時点_年月日.set({ hour: conf.now.hour(), minute: conf.now.minute() }).format('YYYY/MM/DD HH:mm'),
+        date: conf.now.isAfter(csvObj[csvObj.length - 1].集計時点_年月日.clone().set({ hour: 23, minute: 30 }), 'hour') ? csvObj[csvObj.length - 1].集計時点_年月日.format('YYYY/MM/DD 23:20') : csvObj[csvObj.length - 1].集計時点_年月日.set({ hour: conf.now.hour(), minute: conf.now.minute() }).format('YYYY/MM/DD HH:mm'),
         data: csvObj.map((row, i) => ({
           日付: `${row.集計時点_年月日.format('YYYY-MM-DD')}T08:00:00.000Z`,
           小計: Number(row.日別の感染者数),
@@ -132,7 +132,7 @@ const opendata = [
       const csvObj = csvToObj(new iconv('SHIFT_JIS', 'UTF-8').convert(csv).toString())
 
       return {
-        date: csvObj[csvObj.length - 1].公表年月日.isBefore(conf.now, 'day') ? csvObj[csvObj.length - 1].公表年月日.format('YYYY/MM/DD 23:20') : csvObj[csvObj.length - 1].公表年月日.set({ hour: conf.now.hour(), minute: conf.now.minute() }).format('YYYY/MM/DD HH:mm'),
+        date: conf.now.isAfter(csvObj[csvObj.length - 1].公表年月日.clone().set({ hour: 23, minute: 30 }), 'hour') ? csvObj[csvObj.length - 1].公表年月日.format('YYYY/MM/DD 23:20') : csvObj[csvObj.length - 1].公表年月日.set({ hour: conf.now.hour(), minute: conf.now.minute() }).format('YYYY/MM/DD HH:mm'),
         data: csvObj.map(row => ({
           リリース日: `${row.公表年月日.format('YYYY-MM-DD')}T08:00:00.000Z`,
           居住地: row.患者＿居住地,
