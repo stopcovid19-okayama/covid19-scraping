@@ -46,13 +46,11 @@ function csvToObj(csv) {
 
   const data = csvObj
     .map(row => ({
-      ...row, [dateKey]: moment(row[dateKey], dateRE.test(row[dateKey]) ? 'YYYY/M/D' : 'M月D日')
+      ...row,
+      [dateKey]: moment(row[dateKey], dateRE.test(row[dateKey]) ? 'YYYY/M/D' : 'M月D日')
     }))
     .sort((a, b) => a[dateKey] - b[dateKey])
-
-  data.forEach(row => {
-    if (row[dateKey].isValid() === false) throw new Error('Date not valid')
-  })
+    .filter(row => row[dateKey].isValid())
 
   return data
 }
