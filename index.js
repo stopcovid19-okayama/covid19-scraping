@@ -41,19 +41,20 @@ function toAD(warei) {
 }
 
 function csvToObj(csv) {
-  let dateKey
-
   const csvObj = csvParse(csv, { columns: true, skip_empty_lines: true })
-    .map(row => {
-      dateKey = '集計時点_年月日' in row ? '集計時点_年月日' : '公表年月日' // 大した件数ではないので妥協
+  const dateKey = '集計時点_年月日' in csvObj[0] ? '集計時点_年月日' : '公表年月日'
 
-      return {
-        ...row, [dateKey]: moment(row[dateKey], dateRE.test(row[dateKey]) ? 'YYYY/M/D' : 'M月D日')
-      }
-    })
+  const data = csvObj
+    .map(row => ({
+      ...row, [dateKey]: moment(row[dateKey], dateRE.test(row[dateKey]) ? 'YYYY/M/D' : 'M月D日')
+    }))
     .sort((a, b) => a[dateKey] - b[dateKey])
 
-  return csvObj
+  data.forEach(row => {
+    if (row[dateKey].isValid() === false) throw new Error('Date not valid')
+  })
+
+  return data
 }
 
 const opendata = [
