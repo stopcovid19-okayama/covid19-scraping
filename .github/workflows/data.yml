@@ -30,6 +30,8 @@ jobs:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
                   publish_dir: ./data
                   publish_branch: gh-pages
+              env:
+                  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
             - name: Notification Slack
               uses: 8398a7/action-slack@v2
               with:
