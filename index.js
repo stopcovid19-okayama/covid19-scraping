@@ -44,13 +44,28 @@ function csvToObj(csv) {
   const csvObj = csvParse(csv, { columns: true, skip_empty_lines: true })
   const dateKey = '集計時点_年月日' in csvObj[0] ? '集計時点_年月日' : '公表年月日'
 
+  let notifyFlag = false
+
   const data = csvObj
     .map(row => ({
       ...row,
       [dateKey]: moment(row[dateKey], dateRE.test(row[dateKey]) ? 'YYYY/M/D' : 'M月D日')
     }))
+    .filter(row => {
+      const isValid = row[dateKey].isValid()
+      if (isValid === false) notifyFlag = true
+
+      return isValid
+    })
     .sort((a, b) => a[dateKey] - b[dateKey])
-    .filter(row => row[dateKey].isValid())
+
+  // この非同期処理待たないので注意
+  superagent
+    .post(process.env.SLACK_WEBHOOK_URL)
+    .send({
+      text: '空行を検出',
+    })
+    .then()
 
   return data
 }
