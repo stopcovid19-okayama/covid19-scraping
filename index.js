@@ -59,13 +59,14 @@ function csvToObj(csv) {
     })
     .sort((a, b) => a[dateKey] - b[dateKey])
 
-  // この非同期処理待たないので注意
-  superagent
-    .post(process.env.SLACK_WEBHOOK_URL)
-    .send({
-      text: '空行を検出',
-    })
-    .then()
+  if (notifyFlag)
+    // この非同期処理待たないので注意
+    superagent
+      .post(process.env.SLACK_WEBHOOK_URL)
+      .send({
+        text: '空行を検出',
+      })
+      .then()
 
   return data
 }
