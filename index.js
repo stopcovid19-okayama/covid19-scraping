@@ -269,9 +269,9 @@ const opendata = [
         $('body > main > section.section.news > div > ul')
           .children()
           .map((i, el) => ({
-            date: moment(el.children[0].children[0].children[0].nodeValue, 'YYYY/MM/DD'),
-            url: el.children[0].attribs.href,
-            text: el.children[0].children[1].children[0].nodeValue
+            date: moment(el.firstChild.firstChild.firstChild.nodeValue, 'YYYY/MM/DD'),
+            url: el.firstChild.attribs.href,
+            text: el.firstChild.children[1].firstChild.nodeValue || el.firstChild.children[1].firstChild.firstChild.nodeValue // 再帰findの方が良いかもしれない
           }))
           .toArray()
           .sort((a, b) => a.date - b.date)
