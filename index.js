@@ -195,32 +195,36 @@ const opendata = [
       const { text: html } = await superagent(conf.url)
       const $ = cheerio.load(html)
       const tds = $('#main_body > div:nth-child(2) > table > tbody > tr:nth-child(3)').find('td').toArray()
-      const siteData = tds.map(td => Number(toHalfWidth(td.firstChild.nodeValue)))
+      const siteData = tds.map(td => Number(toHalfWidth($(td).contents().text())))
 
       return {
         last_update: conf.now.format('YYYY/MM/DD HH:mm'),
-        attr: '検査実施人数',
+        attr: '検査実施件数',
         value: inspectionsSummary.reduce((total, row) => total + row.小計, 0),
         children: [
           {
-            attr: '陽性患者数',
+            attr: '陽性者数',
             value: patients.length,
             children: [
-              {
-                attr: '入院調整中',
-                value: patients.length - (siteData[1] + siteData[2] + siteData[3])
-              },
               {
                 attr: '入院中',
                 value: siteData[1]
               },
               {
-                attr: '宿泊療養施設に入所中',
+                attr: '重傷者',
                 value: siteData[2]
               },
               {
-                attr: '退院',
+                attr: '宿泊療養施設に入所中　',
                 value: siteData[3]
+              },
+              {
+                attr: '自宅療養中',
+                value: siteData[4]
+              },
+              {
+                attr: '退院等',
+                value: siteData[5]
               },
               {
                 attr: '死亡',
