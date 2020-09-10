@@ -74,7 +74,7 @@ function csvToObj(csv) {
 const opendata = [
   {
     name: 'contacts',
-    csv: 'http://www.okayama-opendata.jp/ckan/dataset/e6b3c1d2-2f1f-4735-b36e-e45d36d94761/resource/165b2f56-d472-4b71-8c81-f97f898f1923/download',
+    csv: 'http://www.okayama-opendata.jp/ckan/dataset/e6b3c1d2-2f1f-4735-b36e-e45d36d94761/resource/b2dd8386-6cf5-4ece-a3e6-7d5c1a389d9f/download',
     transform: async (conf) => {
       const { body: csv } = await superagent(conf.csv).responseType('blob')
       const csvObj = csvToObj(new iconv('SHIFT_JIS', 'UTF-8').convert(csv).toString())
