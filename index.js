@@ -228,7 +228,7 @@ const opendata = [
               },
               {
                 attr: '死亡',
-                value: 0 // オープンデータが無い
+                value: siteData[6]
               }
             ]
           }
