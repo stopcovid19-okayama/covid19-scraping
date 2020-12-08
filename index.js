@@ -42,7 +42,12 @@ function toAD(warei) {
 
 function csvToObj(csv) {
   const csvObj = csvParse(csv, { columns: true, skip_empty_lines: true })
-  const dateKey = '集計時点_年月日' in csvObj[0] ? '集計時点_年月日' : '公表年月日'
+  const dateKey =
+    '集計時点_年月日' in csvObj[0]
+      ? '集計時点_年月日'
+      : '公表_年月日' in csvObj[0]
+        ? '公表_年月日'
+        : '公表年月日'
 
   let notifyFlag = false
 
@@ -238,27 +243,20 @@ const opendata = [
   },
   {
     name: 'medical_system',
-    url: 'https://www.pref.okayama.jp/page/645925.html',
+    csv: 'http://www.okayama-opendata.jp/ckan/dataset/e6b3c1d2-2f1f-4735-b36e-e45d36d94761/resource/a42f1454-ef8a-4d01-ac67-f76202fc9822/download',
     transform: async (conf) => {
-      const { text: html } = await superagent(conf.url)
-      const $ = cheerio.load(html)
-      const row = $($('#main_body > div:nth-child(2)').find('p').toArray().find(el => /^５ 医療体制整備状況/.test($(el).text()))).text().split(/　　\(\d\)/)
+      const { body: csv } = await superagent(conf.csv).responseType('blob')
+      const csvObj = csvToObj(new iconv('SHIFT_JIS', 'UTF-8').convert(csv).toString())
 
-      const [, rawDate] = toHalfWidth(row[0]).match(/（(.+)現在）$/) // 日付
-
-      const RE = /(\d+)[床|室|台]/
-      const [, bed] = toHalfWidth(row[1]).match(RE) // 確保病床
-      const [, stayCareFacility] = toHalfWidth(row[2]).match(RE) // 宿泊療養施設
-      const [, ventilator] = toHalfWidth(row[3]).match(RE) // 人工呼吸器
-      const [, ecmo] = toHalfWidth(row[4]).match(RE) // ECMO
+      const latestRow = csvObj[csvObj.length - 1]
 
       return {
-        date: moment(`${toAD(rawDate)}年${rawDate.match(/\d+月\d+日/)[0]}`, 'YYYY年M月D日').format('YYYY/MM/DD 00:00'),
+        date: latestRow.公表_年月日.format('YYYY/MM/DD 00:00'),
         items: {
-          bed: Number(bed),
-          stay_care_facility: Number(stayCareFacility),
-          ventilator: Number(ventilator),
-          ecmo: Number(ecmo)
+          bed: Number(latestRow.確保数_病床),
+          stay_care_facility: Number(latestRow.確保数_宿泊療養施設),
+          ventilator: Number(latestRow.保有数_人口呼吸器),
+          ecmo: Number(latestRow.保有数_ECMO)
         }
       }
     }
