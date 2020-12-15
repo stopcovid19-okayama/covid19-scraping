@@ -192,15 +192,15 @@ const opendata = [
   },
   {
     name: 'main_summary',
-    url: 'https://www.pref.okayama.jp/page/645925.html',
+    csv: 'http://www.okayama-opendata.jp/ckan/dataset/e6b3c1d2-2f1f-4735-b36e-e45d36d94761/resource/fa331257-8914-4a2e-b9c3-851d6ff77cb1/download',
     transform: async (conf) => {
       const inspectionsSummary = require('./data/inspections_summary.json').data
       const patients = require('./data/patients.json').data
 
-      const { text: html } = await superagent(conf.url)
-      const $ = cheerio.load(html)
-      const tds = $('#main_body > div:nth-child(2) > table > tbody > tr:nth-child(3)').find('td').toArray()
-      const siteData = tds.map(td => Number(toHalfWidth($(td).contents().text())))
+      const { body: csv } = await superagent(conf.csv).responseType('blob')
+      const csvObj = csvToObj(new iconv('SHIFT_JIS', 'UTF-8').convert(csv).toString())
+
+      const latestRow = csvObj[csvObj.length - 1]
 
       return {
         last_update: conf.now.format('YYYY/MM/DD HH:mm'),
@@ -213,27 +213,27 @@ const opendata = [
             children: [
               {
                 attr: '入院中',
-                value: siteData[1]
+                value: Number(latestRow.患者_入院中_入院予定含む)
               },
               {
                 attr: '重傷者',
-                value: siteData[2]
+                value: Number(latestRow.患者_入院中のうち重症者)
               },
               {
-                attr: '宿泊療養施設に入所中　',
-                value: siteData[3]
+                attr: '宿泊療養施設に入所中',
+                value: Number(latestRow.患者_宿泊療養施設に入所中)
               },
               {
                 attr: '自宅療養中',
-                value: siteData[4]
+                value: Number(latestRow.患者_自宅療養中)
               },
               {
                 attr: '退院等',
-                value: siteData[5]
+                value: Number(latestRow.患者_退院等)
               },
               {
                 attr: '死亡',
-                value: siteData[6]
+                value: Number(latestRow.患者_死亡)
               }
             ]
           }
