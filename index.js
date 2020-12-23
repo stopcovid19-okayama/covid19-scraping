@@ -165,6 +165,66 @@ const opendata = [
     }
   },
   {
+    name: 'age',
+    transform: async (conf) => {
+      const patients = require('./data/patients.json').data
+
+      const ageTypes = {
+        "10歳未満": 0,
+        "10代": 0,
+        "20代": 0,
+        "30代": 0,
+        "40代": 0,
+        "50代": 0,
+        "60代": 0,
+        "70代": 0,
+        "80代": 0,
+        "90歳以上": 0,
+        "非公表": 0
+      }
+
+      const sourceValidateAges = [...Object.keys(ageTypes), '未就学児', 'ー']
+
+      patients.forEach(p => {
+        let normalizedAgeType = p.年代
+        if (p.年代 === '90代' || p.年代 === '90代以上') normalizedAgeType = '90歳以上'
+        if (p.年代 === '未就学児') normalizedAgeType = '10歳未満'
+        if (p.年代 === 'ー') normalizedAgeType = '非公表'
+
+        // FIXME: patients.jsonに変換する際にやるべき
+        // 1箇所でエラー吐かせればActionsは止まるので応急処置
+        if (sourceValidateAges.includes(normalizedAgeType) === false) throw new Error(`${p.年代} does not know.`)
+
+        ageTypes[normalizedAgeType] += 1
+      })
+
+      return {
+        data: ageTypes,
+        last_update: conf.now.format('YYYY/MM/DD HH:mm'),
+      }
+    }
+  },
+  {
+    name: 'patients',
+    csv: 'http://www.okayama-opendata.jp/ckan/dataset/e6b3c1d2-2f1f-4735-b36e-e45d36d94761/resource/c6503ebc-b2e9-414c-aae7-7374f4801e21/download',
+    transform: async (conf) => {
+      const { body: csv } = await superagent(conf.csv).responseType('blob')
+      const csvObj = csvToObj(new iconv('SHIFT_JIS', 'UTF-8').convert(csv).toString())
+
+      return {
+        date: conf.now.isAfter(csvObj[csvObj.length - 1].公表年月日.clone().set({ hour: 23, minute: 30 }), 'hour') ? csvObj[csvObj.length - 1].公表年月日.format('YYYY/MM/DD 23:20') : csvObj[csvObj.length - 1].公表年月日.set({ hour: conf.now.hour(), minute: conf.now.minute() }).format('YYYY/MM/DD HH:mm'),
+        data: csvObj.map(row => ({
+          リリース日: `${row.公表年月日.format('YYYY-MM-DD')}T08:00:00.000Z`,
+          居住地: row.患者＿居住地,
+          年代: row.患者＿年代,
+          性別: row.患者＿性別,
+          退院: "",
+          date: row.公表年月日.format('YYYY-MM-DD')
+        }))
+      }
+    }
+  },
+  {
     name: 'positive_rate',
     transform: async (conf) => {
       const inspectionsSummary = require('./data/inspections_summary.json').data
