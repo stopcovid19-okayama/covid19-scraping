@@ -86,9 +86,10 @@ const opendata = [
 
       return {
         date: conf.now.isAfter(csvObj[csvObj.length - 1].集計時点_年月日.clone().set({ hour: 23, minute: 30 }), 'hour') ? csvObj[csvObj.length - 1].集計時点_年月日.format('YYYY/MM/DD 23:20') : csvObj[csvObj.length - 1].集計時点_年月日.set({ hour: conf.now.hour(), minute: conf.now.minute() }).format('YYYY/MM/DD HH:mm'),
-        data: csvObj.map(row => ({
+        data: csvObj.map((row, i) => ({
           日付: `${row.集計時点_年月日.format('YYYY-MM-DD')}T08:00:00.000Z`,
-          小計: Number(row.相談件数_計)
+          小計: Number(row.相談件数_計),
+          '７日間平均': 0 <= i - 6 ? numRound(csvObj.slice(i - 6, i + 1).reduce((p, c) => p + Number(c.小計), 0) / 7, 10) : null
         }))
       }
     }
