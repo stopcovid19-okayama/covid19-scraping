@@ -158,7 +158,6 @@ const opendata = [
           居住地: row.患者＿居住地,
           年代: row.患者＿年代,
           性別: row.患者＿性別,
-          退院: "",
           date: row.公表年月日.format('YYYY-MM-DD')
         }))
       }
@@ -200,7 +199,16 @@ const opendata = [
       const { body: csv } = await superagent(conf.csv).responseType('blob')
       const csvObj = csvToObj(new iconv('SHIFT_JIS', 'UTF-8').convert(csv).toString())
 
-      const latestRow = csvObj[csvObj.length - 1]
+      const patientOutbreakStatus = csvObj.map(row => ({
+        公表_年月日: `${row.公表_年月日.format('YYYY-MM-DD')}T08:00:00.000Z`,
+        延べ数: Number(row.患者_延べ数),
+        入院中: Number(row.患者_入院中_入院予定含む),
+        重傷者: Number(row.患者_入院中のうち重症者),
+        宿泊療養施設に入所中: Number(row.患者_宿泊療養施設に入所中),
+        自宅療養中: Number(row.患者_自宅療養中),
+        退院等: Number(row.患者_退院等),
+        死亡: Number(row.患者_死亡),
+      }))
 
       return {
         last_update: conf.now.format('YYYY/MM/DD HH:mm'),
@@ -210,32 +218,7 @@ const opendata = [
           {
             attr: '陽性者数',
             value: patients.length,
-            children: [
-              {
-                attr: '入院中',
-                value: Number(latestRow.患者_入院中_入院予定含む)
-              },
-              {
-                attr: '重傷者',
-                value: Number(latestRow.患者_入院中のうち重症者)
-              },
-              {
-                attr: '宿泊療養施設に入所中',
-                value: Number(latestRow.患者_宿泊療養施設に入所中)
-              },
-              {
-                attr: '自宅療養中',
-                value: Number(latestRow.患者_自宅療養中)
-              },
-              {
-                attr: '退院等',
-                value: Number(latestRow.患者_退院等)
-              },
-              {
-                attr: '死亡',
-                value: Number(latestRow.患者_死亡)
-              }
-            ]
+            children: patientOutbreakStatus.map(row => Object.entries(row).map(([attr, value]) => ({ attr, value })))
           }
         ]
       }
