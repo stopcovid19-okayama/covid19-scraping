@@ -286,6 +286,23 @@ const opendata = [
     }
   },
   {
+    name: 'current_patients',
+    transform: async (conf) => {
+      const mainSummary = require('./data/main_summary.json')
+
+      const patientOutbreakStatus = mainSummary.children.find(({ attr }) => attr === '陽性者数').children
+      const patientOutbreakStatusLatestReleaseDate = moment(patientOutbreakStatus[patientOutbreakStatus.length - 1])
+
+      return {
+        date: conf.now.isAfter(patientOutbreakStatusLatestReleaseDate.clone().set({ hour: 23, minute: 30 }), 'hour') ? patientOutbreakStatusLatestReleaseDate.format('YYYY/MM/DD 23:20') : patientOutbreakStatusLatestReleaseDate.set({ hour: conf.now.hour(), minute: conf.now.minute() }).format('YYYY/MM/DD HH:mm'),
+        data: patientOutbreakStatus.map(row => ({
+          日付: row.公表_年月日,
+          小計: row.find(({ attr }) => attr === '延べ数').value - (row.find(({ attr }) => attr === '退院等').value + row.find(({ attr }) => attr === '死亡').value)
+        }))
+      }
+    }
+  },
+  {
     name: 'medical_system',
     csv: 'http://www.okayama-opendata.jp/ckan/dataset/e6b3c1d2-2f1f-4735-b36e-e45d36d94761/resource/a42f1454-ef8a-4d01-ac67-f76202fc9822/download',
     transform: async (conf) => {
