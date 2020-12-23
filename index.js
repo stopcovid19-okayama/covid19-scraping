@@ -225,6 +225,47 @@ const opendata = [
     }
   },
   {
+    name: 'locale_patients',
+    transform: async (conf) => {
+      const patients = require('./data/patients.json')
+
+      const districtClassification = {
+        県南東部: ['岡山市', '玉野市', '赤磐市', '和気町', '備前市', '瀬戸内市', '吉備中央町'],
+        県南西部: ['倉敷市', '笠岡市', '井原市', '総社市', '浅口市', '早島超', '里庄町', '矢掛町'],
+        '高梁・新見': ['新見市', '高梁市'],
+        真庭: ['真庭市', '新庄村'],
+        '津山・英田': ['津山市', '美作市', '鏡野町', '勝央町', '奈義町', '西粟倉村', '久米南町', '美咲町'],
+        非公表: [] // NOTE: 既存の非公表データが無い
+      }
+
+      const data = {
+        県南東部: 0,
+        県南西部: 0,
+        '高梁・新見': 0,
+        真庭: 0,
+        '津山・英田': 0,
+        非公表: 0,
+        その他: 0
+      }
+
+      patients.data.forEach(row => {
+        const isAssumedData = Object.entries(districtClassification).some(([area, districts]) => {
+          if (districts.includes(row.居住地)) {
+            data[area] += 1
+
+            return
+          }
+        })
+        if (isAssumedData === false) data.その他 += 1
+      })
+
+      return {
+        last_update: patients.date,
+        data
+      }
+    }
+  },
+  {
     name: 'positive_rate',
     transform: async (conf) => {
       const inspectionsSummary = require('./data/inspections_summary.json').data
