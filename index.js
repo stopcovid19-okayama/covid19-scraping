@@ -89,7 +89,7 @@ const opendata = [
         data: csvObj.map((row, i) => ({
           日付: `${row.集計時点_年月日.format('YYYY-MM-DD')}T08:00:00.000Z`,
           小計: Number(row.相談件数_計),
-          '７日間平均': 0 <= i - 6 ? numRound(csvObj.slice(i - 6, i + 1).reduce((p, c) => p + Number(c.小計), 0) / 7, 10) : null
+          '７日間平均': 0 <= i - 6 ? numRound(csvObj.slice(i - 6, i + 1).reduce((p, c) => p + Number(c.相談件数_計), 0) / 7, 10) : null
         }))
       }
     }
