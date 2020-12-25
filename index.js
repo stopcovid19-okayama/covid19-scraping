@@ -508,7 +508,7 @@ const opendata = [
               .format("YYYY/MM/DD HH:mm"),
         data: patientOutbreakStatusKai.map((row) => ({
           日付: row.公表_年月日,
-          小計: row.延べ数 - row.退院等 + row.死亡,
+          小計: row.延べ数 - (row.退院等 + row.死亡),
         })),
       };
     },
