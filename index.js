@@ -487,15 +487,16 @@ const opendata = [
         ({ attr }) => attr === "陽性者数"
       ).children;
       const patientOutbreakStatusLatestReleaseDate = moment(
-        patientOutbreakStatus[patientOutbreakStatus.length - 1]
+        patientOutbreakStatus[patientOutbreakStatus.length - 1].find(
+          ({ attr }) => attr === "公表_年月日"
+        ).value
       );
 
       return {
         date: conf.now.isAfter(
           patientOutbreakStatusLatestReleaseDate
             .clone()
-            .set({ hour: 23, minute: 30 }),
-          "hour"
+            .set({ hour: 23, minute: 30 })
         )
           ? patientOutbreakStatusLatestReleaseDate.format("YYYY/MM/DD 23:20")
           : patientOutbreakStatusLatestReleaseDate
