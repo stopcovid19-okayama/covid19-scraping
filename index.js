@@ -394,7 +394,7 @@ const opendata = [
             if (districts.includes(row.居住地)) {
               data[area] += 1;
 
-              return;
+              return true;
             }
           }
         );
