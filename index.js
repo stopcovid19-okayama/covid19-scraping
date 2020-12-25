@@ -492,6 +492,10 @@ const opendata = [
         ).value
       );
 
+      const patientOutbreakStatusKai = patientOutbreakStatus.map((row) =>
+        row.reduce((p, { attr, value }) => ({ ...p, [attr]: value }), {})
+      );
+
       return {
         date: conf.now.isAfter(
           patientOutbreakStatusLatestReleaseDate
@@ -502,12 +506,9 @@ const opendata = [
           : patientOutbreakStatusLatestReleaseDate
               .set({ hour: conf.now.hour(), minute: conf.now.minute() })
               .format("YYYY/MM/DD HH:mm"),
-        data: patientOutbreakStatus.map((row) => ({
+        data: patientOutbreakStatusKai.map((row) => ({
           日付: row.公表_年月日,
-          小計:
-            row.find(({ attr }) => attr === "延べ数").value -
-            (row.find(({ attr }) => attr === "退院等").value +
-              row.find(({ attr }) => attr === "死亡").value),
+          小計: row.延べ数 - row.退院等 + row.死亡,
         })),
       };
     },
