@@ -455,7 +455,7 @@ const opendata = [
         公表_年月日: `${row.公表_年月日.format("YYYY-MM-DD")}T08:00:00.000Z`,
         延べ数: Number(row.患者_延べ数),
         入院中: Number(row.患者_入院中_入院予定含む),
-        重傷者: Number(row.患者_入院中のうち重症者),
+        重症者: Number(row.患者_入院中のうち重症者),
         宿泊療養施設に入所中: Number(row.患者_宿泊療養施設に入所中),
         自宅療養中: Number(row.患者_自宅療養中),
         退院等: Number(row.患者_退院等),
