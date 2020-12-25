@@ -529,7 +529,7 @@ const opendata = [
         items: {
           bed: Number(latestRow.確保数_病床),
           stay_care_facility: Number(latestRow.確保数_宿泊療養施設),
-          ventilator: Number(latestRow.保有数_人口呼吸器),
+          ventilator: Number(latestRow.保有数_人工呼吸器),
           ecmo: Number(latestRow.保有数_ECMO),
         },
       };
