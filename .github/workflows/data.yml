@@ -3,6 +3,7 @@ name: Update JSON Files
 on:
     repository_dispatch:
         types: [update-data]
+    workflow_dispatch:
     schedule:
         - cron: "0 1,4,6,9,12,14 * * *"
 
