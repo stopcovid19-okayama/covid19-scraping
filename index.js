@@ -3,10 +3,7 @@ const csvParse = require("csv-parse/lib/sync");
 const fs = require("fs");
 const iconv = require("iconv").Iconv;
 const moment = require("moment");
-const pdfParse = require("pdf-parse");
 const superagent = require("superagent");
-
-const dateRE = new RegExp(/[0-9]{4}\/[0-9]{1,2}\/[0-9]{1,2}/); // ガバガバなので注意
 
 function numRound(value, base) {
   return Math.round(value * base) / base;
@@ -18,33 +15,6 @@ function toHalfWidth(str) {
   );
 }
 
-function toAD(warei) {
-  let [, era, year] = warei.match(
-    /^(明治|大正|昭和|平成|令和)([元\d]+)年?/,
-    (match) => {
-      if (match === "元") return 1;
-    }
-  );
-
-  if (era === undefined) throw new Error("Not japanese calendar");
-
-  year = Number(year);
-
-  if (era === "明治") {
-    year += 1867;
-  } else if (era === "大正") {
-    year += 1911;
-  } else if (era === "昭和") {
-    year += 1925;
-  } else if (era === "平成") {
-    year += 1988;
-  } else if (era === "令和") {
-    year += 2018;
-  }
-
-  return year;
-}
-
 function csvToObj(csv) {
   const csvObj = csvParse(csv, { columns: true, skip_empty_lines: true });
   const dateKey =
@@ -54,32 +24,18 @@ function csvToObj(csv) {
       ? "公表_年月日"
       : "公表年月日";
 
-  let notifyFlag = false;
-
   const data = csvObj
-    .map((row) => ({
-      ...row,
-      [dateKey]: moment(
-        row[dateKey],
-        dateRE.test(row[dateKey]) ? "YYYY/M/D" : "M月D日"
-      ),
-    }))
-    .filter((row) => {
-      const isValid = row[dateKey].isValid();
-      if (isValid === false) notifyFlag = true;
+    .map((row) => {
+      const date = moment(row[dateKey], "YYYY/M/D");
 
-      return isValid;
+      if (date.isValid === false) throw new Error(`date isn't valid.`);
+
+      return {
+        ...row,
+        [dateKey]: date,
+      };
     })
     .sort((a, b) => a[dateKey] - b[dateKey]);
-
-  if (notifyFlag)
-    // この非同期処理待たないので注意
-    superagent
-      .post(process.env.SLACK_WEBHOOK_URL)
-      .send({
-        text: "空行を検出",
-      })
-      .then();
 
   return data;
 }
