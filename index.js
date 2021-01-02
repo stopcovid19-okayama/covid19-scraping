@@ -3,10 +3,7 @@ const csvParse = require("csv-parse/lib/sync");
 const fs = require("fs");
 const iconv = require("iconv").Iconv;
 const moment = require("moment");
-const pdfParse = require("pdf-parse");
 const superagent = require("superagent");
-
-const dateRE = new RegExp(/[0-9]{4}\/[0-9]{1,2}\/[0-9]{1,2}/); // ガバガバなので注意
 
 function numRound(value, base) {
   return Math.round(value * base) / base;
@@ -16,33 +13,6 @@ function toHalfWidth(str) {
   return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) =>
     String.fromCharCode(s.charCodeAt(0) - 0xfee0)
   );
-}
-
-function toAD(warei) {
-  let [, era, year] = warei.match(
-    /^(明治|大正|昭和|平成|令和)([元\d]+)年?/,
-    (match) => {
-      if (match === "元") return 1;
-    }
-  );
-
-  if (era === undefined) throw new Error("Not japanese calendar");
-
-  year = Number(year);
-
-  if (era === "明治") {
-    year += 1867;
-  } else if (era === "大正") {
-    year += 1911;
-  } else if (era === "昭和") {
-    year += 1925;
-  } else if (era === "平成") {
-    year += 1988;
-  } else if (era === "令和") {
-    year += 2018;
-  }
-
-  return year;
 }
 
 function csvToObj(csv) {

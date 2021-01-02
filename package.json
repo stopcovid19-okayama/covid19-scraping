@@ -14,7 +14,6 @@
     "csv-parse": "^4.11.1",
     "iconv": "^3.0.0",
     "moment": "^2.27.0",
-    "pdf-parse": "^1.1.1",
-    "superagent": "^5.3.1"
+    "superagent": "^6.1.0"
   }
 }
