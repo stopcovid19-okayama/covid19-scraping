@@ -15,7 +15,7 @@ function toHalfWidth(str) {
   );
 }
 
-function csvToObj(csv) {
+function csvToObj(csv, calcTime = false) {
   const csvObj = csvParse(csv, { columns: true, skip_empty_lines: true });
   const dateKey =
     "集計時点_年月日" in csvObj[0]
@@ -26,9 +26,13 @@ function csvToObj(csv) {
 
   const data = csvObj
     .map((row) => {
-      const date = moment(row[dateKey], "YYYY/M/D");
+      const date = moment(
+        row[dateKey],
+        calcTime ? "YYYY/MM/DD HH:mm" : "YYYY/M/D",
+        true
+      );
 
-      if (date.isValid === false) throw new Error(`date isn't valid.`);
+      if (date.isValid() === false) throw new Error(`date isn't valid.`);
 
       return {
         ...row,
@@ -491,6 +495,44 @@ const opendata = [
     },
   },
   {
+    name: "analysis",
+    csv:
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vRj9yZL6tK7K6u9GOxoNh9ly_qG2HC8CAQH9f8s-DFgtWBraNTd1il0ogCfF5F-gu-IJDp1Ufz9rXyZ/pub?gid=0&single=true&output=csv",
+    transform: async (conf) => {
+      const editingFlagCSVURL =
+        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRj9yZL6tK7K6u9GOxoNh9ly_qG2HC8CAQH9f8s-DFgtWBraNTd1il0ogCfF5F-gu-IJDp1Ufz9rXyZ/pub?gid=346801953&single=true&output=csv";
+      const { body: editingFlagCSVBuffer } = await superagent(
+        editingFlagCSVURL
+      ).responseType("blob");
+      const editingFlagCSVObj = csvParse(editingFlagCSVBuffer, {
+        columns: ["", "description", "value"],
+        skip_empty_lines: true,
+      });
+      if (editingFlagCSVObj[1].value === "TRUE")
+        return superagent(
+          "https://raw.githubusercontent.com/stopcovid19-okayama/covid19-scraping/gh-pages/analysis.json"
+        ).then(({ text }) => JSON.parse(text)); // NOTE: ヘッダーの関係でいい感じにobject化してくれない
+
+      const { body: csv } = await superagent(conf.csv).responseType("blob");
+      const csvObj = csvToObj(csv, true);
+
+      return csvObj.map((row) => {
+        const date = row.公表_年月日.format("YYYY/MM/DD HH:mm");
+        delete row.公表_年月日;
+
+        return {
+          data: Object.fromEntries(
+            Object.entries(row).map(([column, value]) => {
+              const data = Number(value);
+              return [column, Number.isNaN(data) ? value : data];
+            })
+          ),
+          date,
+        };
+      });
+    },
+  },
+  {
     name: "last_update",
     transform: async (conf) => {
       return {
@@ -504,6 +546,7 @@ const opendata = [
   for (const conf of opendata) {
     console.log("processing:", conf.name);
     const data = await conf.transform({ ...conf, now: moment() });
+    if (data === undefined) continue;
     fs.writeFileSync(
       `data/${conf.name}.json`,
       `${JSON.stringify(data, undefined, 4)}\n`
