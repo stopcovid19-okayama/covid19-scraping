@@ -181,7 +181,7 @@ const opendata = [
               .format("YYYY/MM/DD HH:mm"),
         data: csvObj.map((row, i) => ({
           日付: `${row.年月日.format("YYYY-MM-DD")}T08:00:00.000Z`,
-          "実施人数（累計）": Number(row["実施人数（累計）"]),
+          "実施人数": Number(row["実施人数（累計）"]),
         })),
       };
     },
