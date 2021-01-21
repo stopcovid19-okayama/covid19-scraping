@@ -22,6 +22,8 @@ function csvToObj(csv, calcTime = false) {
       ? "集計時点_年月日"
       : "公表_年月日" in csvObj[0]
       ? "公表_年月日"
+      : "年月日" in csvObj[0]
+      ? "年月日"
       : "公表年月日";
 
   const data = csvObj
@@ -152,6 +154,34 @@ const opendata = [
                   10
                 )
               : null,
+        })),
+      };
+    },
+  },
+  {
+    name: "total_inspections",
+    csv:
+      "http://www.okayama-opendata.jp/ckan/dataset/e6b3c1d2-2f1f-4735-b36e-e45d36d94761/resource/b10fffae-6e6e-4516-9865-124470eec364/download/",
+    transform: async (conf) => {
+      const { body: csv } = await superagent(conf.csv).responseType("blob");
+      const csvObj = csvToObj(
+        new iconv("SHIFT_JIS", "UTF-8").convert(csv).toString()
+      );
+
+      return {
+        date: conf.now.isAfter(
+          csvObj[csvObj.length - 1].年月日
+            .clone()
+            .set({ hour: 23, minute: 30 }),
+          "hour"
+        )
+          ? csvObj[csvObj.length - 1].年月日.format("YYYY/MM/DD 23:20")
+          : csvObj[csvObj.length - 1].年月日
+              .set({ hour: conf.now.hour(), minute: conf.now.minute() })
+              .format("YYYY/MM/DD HH:mm"),
+        data: csvObj.map((row, i) => ({
+          日付: `${row.年月日.format("YYYY-MM-DD")}T08:00:00.000Z`,
+          "実施人数": Number(row["実施人数（累計）"]),
         })),
       };
     },
