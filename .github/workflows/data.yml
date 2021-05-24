@@ -35,11 +35,3 @@ jobs:
                   publish_branch: gh-pages
                   user_name: 'github-actions[bot]'
                   user_email: 'github-actions[bot]@users.noreply.github.com'
-            - name: Notification Slack
-              uses: 8398a7/action-slack@v2
-              with:
-                  status: ${{ job.status }}
-              env:
-                  ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-                  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-              if: always()
