@@ -49,8 +49,7 @@ function csvToObj(csv, calcTime = false) {
 const opendata = [
   {
     name: "contacts",
-    csv:
-      "http://www.okayama-opendata.jp/ckan/dataset/e6b3c1d2-2f1f-4735-b36e-e45d36d94761/resource/b2dd8386-6cf5-4ece-a3e6-7d5c1a389d9f/download",
+    csv: "https://okayama-pref.dataeye.jp/resource_download/10107",
     transform: async (conf) => {
       const { body: csv } = await superagent(conf.csv).responseType("blob");
       const csvObj = csvToObj(
@@ -86,8 +85,7 @@ const opendata = [
   },
   {
     name: "querents",
-    csv:
-      "http://www.okayama-opendata.jp/ckan/dataset/e6b3c1d2-2f1f-4735-b36e-e45d36d94761/resource/f38ae73f-73c1-4f34-8174-1b188c77c713/download",
+    csv: "https://okayama-pref.dataeye.jp/resource_download/10108",
     transform: async (conf) => {
       const { body: csv } = await superagent(conf.csv).responseType("blob");
       const csvObj = csvToObj(
@@ -123,8 +121,7 @@ const opendata = [
   },
   {
     name: "inspections_summary",
-    csv:
-      "http://www.okayama-opendata.jp/ckan/dataset/e6b3c1d2-2f1f-4735-b36e-e45d36d94761/resource/60ecd874-0f71-4d9f-9a8a-936fad9c99bc/download",
+    csv: "https://okayama-pref.dataeye.jp/resource_download/10110",
     transform: async (conf) => {
       const { body: csv } = await superagent(conf.csv).responseType("blob");
       const csvObj = csvToObj(
@@ -160,8 +157,7 @@ const opendata = [
   },
   {
     name: "total_inspections",
-    csv:
-      "http://www.okayama-opendata.jp/ckan/dataset/e6b3c1d2-2f1f-4735-b36e-e45d36d94761/resource/b10fffae-6e6e-4516-9865-124470eec364/download/",
+    csv: "https://okayama-pref.dataeye.jp/resource_download/10109",
     transform: async (conf) => {
       const { body: csv } = await superagent(conf.csv).responseType("blob");
       const csvObj = csvToObj(
@@ -181,15 +177,14 @@ const opendata = [
               .format("YYYY/MM/DD HH:mm"),
         data: csvObj.map((row, i) => ({
           日付: `${row.年月日.format("YYYY-MM-DD")}T08:00:00.000Z`,
-          "実施人数": Number(row["実施人数（累計）"]),
+          実施人数: Number(row["実施人数（累計）"]),
         })),
       };
     },
   },
   {
     name: "patients_summary",
-    csv:
-      "http://www.okayama-opendata.jp/ckan/dataset/e6b3c1d2-2f1f-4735-b36e-e45d36d94761/resource/0c728c2e-a366-421d-95df-86b6b5ad15fd/download",
+    csv: "https://okayama-pref.dataeye.jp/resource_download/10111",
     transform: async (conf) => {
       const { body: csv } = await superagent(conf.csv).responseType("blob");
       const csvObj = csvToObj(
@@ -225,8 +220,7 @@ const opendata = [
   },
   {
     name: "patients",
-    csv:
-      "http://www.okayama-opendata.jp/ckan/dataset/e6b3c1d2-2f1f-4735-b36e-e45d36d94761/resource/d021c012-297e-4ea9-bffa-cf55741884d1/download",
+    csv: "https://okayama-pref.dataeye.jp/resource_download/10112",
     transform: async (conf) => {
       const { body: csv } = await superagent(conf.csv).responseType("blob");
       const csvObj = csvToObj(
@@ -397,8 +391,7 @@ const opendata = [
   },
   {
     name: "main_summary",
-    csv:
-      "http://www.okayama-opendata.jp/ckan/dataset/e6b3c1d2-2f1f-4735-b36e-e45d36d94761/resource/fa331257-8914-4a2e-b9c3-851d6ff77cb1/download",
+    csv: "https://okayama-pref.dataeye.jp/resource_download/10113",
     transform: async (conf) => {
       const inspectionsSummary = require("./data/inspections_summary.json")
         .data;
@@ -473,8 +466,7 @@ const opendata = [
   },
   {
     name: "medical_system",
-    csv:
-      "http://www.okayama-opendata.jp/ckan/dataset/e6b3c1d2-2f1f-4735-b36e-e45d36d94761/resource/a42f1454-ef8a-4d01-ac67-f76202fc9822/download",
+    csv: "https://okayama-pref.dataeye.jp/resource_download/10114",
     transform: async (conf) => {
       const { body: csv } = await superagent(conf.csv).responseType("blob");
       const csvObj = csvToObj(
@@ -575,12 +567,16 @@ const opendata = [
 (async () => {
   for (const conf of opendata) {
     console.log("processing:", conf.name);
-    const data = await conf.transform({ ...conf, now: moment() });
-    if (data === undefined) continue;
-    fs.writeFileSync(
-      `data/${conf.name}.json`,
-      `${JSON.stringify(data, undefined, 4)}\n`
-    );
+    try {
+      const data = await conf.transform({ ...conf, now: moment() });
+      if (data === undefined) continue;
+      fs.writeFileSync(
+        `data/${conf.name}.json`,
+        `${JSON.stringify(data, undefined, 4)}\n`
+      );
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   fs.statSync("data/last_update.json");
