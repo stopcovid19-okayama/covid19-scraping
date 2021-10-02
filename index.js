@@ -158,7 +158,6 @@ const opendata = [
   {
     name: "total_inspections",
     csv: "https://okayama-pref.dataeye.jp/resource_download/10109",
-      "http://www.okayama-opendata.jp/ckan/dataset/e6b3c1d2-2f1f-4735-b36e-e45d36d94761/resource/b10fffae-6e6e-4516-9865-124470eec364/download/",
     transform: async (conf) => {
       const { body: csv } = await superagent(conf.csv).responseType("blob");
       const csvObj = csvToObj(
@@ -178,7 +177,7 @@ const opendata = [
               .format("YYYY/MM/DD HH:mm"),
         data: csvObj.map((row, i) => ({
           日付: `${row.年月日.format("YYYY-MM-DD")}T08:00:00.000Z`,
-          "実施人数": Number(row["実施人数（累計）"]),
+          実施人数: Number(row["実施人数（累計）"]),
         })),
       };
     },
