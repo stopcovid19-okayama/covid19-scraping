@@ -10,7 +10,7 @@ on:
 jobs:
     data:
         name: update-data
-        runs-on: ubuntu-18.04
+        runs-on: ubuntu-20.04
         env:
             TZ: Asia/Tokyo
         steps:
@@ -18,7 +18,7 @@ jobs:
             - name: Setup Node.js
               uses: actions/setup-node@v1
               with:
-                  node-version: '12'
+                  node-version: '18'
             - name: Install dependencies
               run: |
                   npm ci
