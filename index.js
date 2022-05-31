@@ -1,5 +1,5 @@
 const cheerio = require("cheerio");
-const csvParse = require("csv-parse/lib/sync");
+const { parse: csvParse } = require("csv-parse/sync");
 const fs = require("fs");
 const iconv = require("iconv").Iconv;
 const moment = require("moment");
