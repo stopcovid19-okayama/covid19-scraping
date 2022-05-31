@@ -273,7 +273,7 @@ const opendata = [
         let normalizedAgeType = p.年代;
         if (p.年代 === "90代" || p.年代 === "90代以上")
           normalizedAgeType = "90歳以上";
-        if (p.年代 === "未就学児") normalizedAgeType = "10歳未満";
+        if (["未就学児", "10代未満"].includes(p.年代)) normalizedAgeType = "10歳未満";
         if (p.年代 === "ー") normalizedAgeType = "非公表";
 
         // FIXME: patients.jsonに変換する際にやるべき
