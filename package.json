@@ -13,7 +13,7 @@
     "cheerio": "^1.0.0-rc.11",
     "csv-parse": "^5.1.0",
     "iconv": "^3.0.1",
-    "moment": "^2.29.3",
+    "moment": "^2.29.4",
     "superagent": "^7.1.3"
   }
 }
